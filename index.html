@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Enterprise Setup Wizard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #F5F3F0 0%, #E6DDD4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .wizard-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .wizard-header {
+            background: #D4A574;
+            color: #1A1A1A;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .wizard-header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .wizard-header p {
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(26, 26, 26, 0.2);
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1A1A1A;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .wizard-content {
+            padding: 40px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .step-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1A1A1A;
+        }
+
+        .button-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .option-button {
+            background: #F5F3F0;
+            border: 2px solid #D4A574;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-button:hover {
+            background: #D4A574;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+        }
+
+        .option-button h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .option-button p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E6DDD4;
+        }
+
+        .nav-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-button.back {
+            background: #F5F3F0;
+            color: #1A1A1A;
+        }
+
+        .nav-button.back:hover {
+            background: #E6DDD4;
+        }
+
+        .nav-button.next {
+            background: #D4A574;
+            color: white;
+        }
+
+        .nav-button.next:hover {
+            background: #C09868;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1A1A1A;
+        }
+
+        .tooltip {
+            display: inline-block;
+            margin-left: 8px;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #D4A574;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .tooltip-content {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1A1A1A;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            max-width: 300px;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+
+        .tooltip:hover .tooltip-content {
+            display: block;
+            white-space: normal;
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1A1A1A;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #E6DDD4;
+            border-radius: 6px;
+            font-size: 0.95em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #D4A574;
+        }
+
+        .form-input.error {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        select.form-input {
+            cursor: pointer;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .info-box {
+            background: #F9F7F5;
+            border-left: 4px solid #D4A574;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #1A1A1A;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        .action-box {
+            background: #FFF9F3;
+            border: 2px solid #D4A574;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .action-box h4 {
+            color: #1A1A1A;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .action-box a {
+            color: #D4A574;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .action-box a:hover {
+            text-decoration: underline;
+        }
+
+        .link-box {
+            background: #F5F3F0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-box p {
+            font-weight: 500;
+            color: #1A1A1A;
+        }
+
+        .link-box a {
+            color: #D4A574;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link-box a:hover {
+            text-decoration: underline;
+        }
+
+        .end-screen {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-icon {
+            font-size: 4em;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .quick-link {
+            background: #F5F3F0;
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1A1A1A;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .quick-link:hover {
+            background: #D4A574;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+        }
+
+        .summary-box {
+            background: #F9F7F5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #E6DDD4;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .summary-value {
+            color: #1A1A1A;
+        }
+
+        .licensing-options {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .license-card {
+            border: 2px solid #E6DDD4;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .license-card:hover {
+            border-color: #D4A574;
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.2);
+        }
+
+        .license-card.selected {
+            border-color: #D4A574;
+            background: #FFF9F3;
+        }
+
+        .license-card h3 {
+            color: #1A1A1A;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .license-card .price {
+            color: #D4A574;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .license-card ul {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .license-card li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .license-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .radio-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #D4A574;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-indicator::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #D4A574;
+            display: none;
+        }
+
+        .license-card.selected .radio-indicator::after {
+            display: block;
+        }
+
+        .notice-box {
+            background: #FFF3E0;
+            border: 1px solid #FFB74D;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .notice-box strong {
+            color: #E65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>Claude Code for Your Team</h1>
+            <p id="header-description">Get your development team started with AI-powered coding assistance</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 10%"></div>
+            </div>
+        </div>
+
+        <div class="wizard-content">
+            <div id="step-content" class="step-content">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-button back" id="back-btn" onclick="previousStep()" style="display: none">
+                    ← Back
+                </button>
+                <button class="nav-button next" id="next-btn" onclick="nextStep()">
+                    Get Started →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let selectedLicense = null;
+        let customerData = {};
+
+        const steps = [
+            {
+                title: 'Welcome to Claude Code Setup',
+                type: 'info',
+                content: `
+                    <div class="info-box">
+                        <h3>Let's get your team started with Claude Code!</h3>
+                        <p>This wizard will help you set up Claude Code for your development team in just a few minutes.</p>
+                        <p style="margin-top: 10px;"><strong>What is Claude Code?</strong></p>
+                        <p>Claude Code is an AI-powered coding assistant that helps your developers write better code faster, debug issues, and accelerate development workflows.</p>
+                    </div>
+                    <div class="action-box">
+                        <h4>What we'll help you with:</h4>
+                        <ul style="margin-left: 20px;">
+                            <li>Choose the right licensing option for your team</li>
+                            <li>Set up your organization account</li>
+                            <li>Configure single sign-on (SSO) for easy access</li>
+                            <li>Understand billing and usage management</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                title: 'Choose Your Licensing Option',
+                type: 'licensing',
+                content: `
+                    <p style="margin-bottom: 20px;">Select the option that best fits your team's needs:</p>
+                    <div class="licensing-options">
+                        <div class="license-card" onclick="selectLicense('per-user')">
+                            <div class="radio-indicator"></div>
+                            <h3>Per-User License
+                                <span class="tooltip">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-content">Fixed monthly cost per developer with unlimited usage within fair use limits</span>
+                                </span>
+                            </h3>
+                            <div class="price">$200/month per developer</div>
+                            <p>Best for teams wanting predictable costs and maximum features</p>
+                            <ul>
+                                <li>Unlimited code completions and chat</li>
+                                <li>Includes Claude for Enterprise access</li>
+                                <li>Priority support</li>
+                                <li>No usage monitoring needed</li>
+                            </ul>
+                        </div>
+
+                        <div class="license-card" onclick="selectLicense('api-token')">
+                            <div class="radio-indicator"></div>
+                            <h3>API Token (Pay-as-you-go)
+                                <span class="tooltip">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-content">Pay only for what you use, billed by API tokens consumed</span>
+                                </span>
+                            </h3>
+                            <div class="price">~$60-100/month per developer</div>
+                            <p>Flexible option for teams wanting to control costs</p>
+                            <ul>
+                                <li>Pay only for actual usage</li>
+                                <li>Set spending limits per workspace</li>
+                                <li>Detailed usage analytics</li>
+                                <li>Start immediately with no commitment</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="notice-box" id="license-notice" style="display: none;">
+                        <strong>Important:</strong> <span id="notice-text"></span>
+                    </div>
+                `
+            },
+            {
+                title: 'Tell Us About Your Team',
+                type: 'form',
+                fields: [
+                    {
+                        id: 'company_name',
+                        label: 'Company Name',
+                        type: 'text',
+                        placeholder: 'Enter your company name',
+                        required: true
+                    },
+                    {
+                        id: 'your_name',
+                        label: 'Your Name',
+                        type: 'text',
+                        placeholder: 'Enter your full name',
+                        required: true
+                    },
+                    {
+                        id: 'email',
+                        label: 'Work Email Address',
+                        type: 'email',
+                        placeholder: 'you@company.com',
+                        required: true
+                    },
+                    {
+                        id: 'role',
+                        label: 'Your Role',
+                        type: 'select',
+                        options: ['Engineering Manager', 'Team Lead', 'CTO/VP Engineering', 'IT Administrator', 'Developer', 'Other'],
+                        required: true
+                    },
+                    {
+                        id: 'team_size',
+                        label: 'Development Team Size',
+                        type: 'select',
+                        options: ['1-10 developers', '11-50 developers', '51-200 developers', '200+ developers'],
+                        required: true,
+                        tooltip: 'Include all developers who will use Claude Code'
+                    },
+                    {
+                        id: 'timeline',
+                        label: 'When do you want to get started?',
+                        type: 'select',
+                        options: ['Immediately', 'Within a week', 'Within a month', 'Just exploring'],
+                        required: true
+                    },
+                    {
+                        id: 'current_tools',
+                        label: 'Current AI coding tools (if any)',
+                        type: 'textarea',
+                        placeholder: 'e.g., GitHub Copilot, Cursor, none',
+                        required: false,
+                        tooltip: 'This helps us understand your team\'s experience with AI coding assistants'
+                    }
+                ]
+            },
+            {
+                title: 'API Access Setup',
+                type: 'info',
+                content: `
+                    <div class="info-box">
+                        <h3>Setting Up API Access</h3>
+                        <p>To get started with Claude Code, you'll need to create an API account first. This allows immediate access while we process any license requests.</p>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Step 1: Create Your Console Account</h4>
+                        <p>Visit the link below to create your organization's account:</p>
+                        <a href="https://console.anthropic.com" target="_blank">Create Console Account →</a>
+                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">This will open in a new tab</p>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Step 2: Note Your Organization ID</h4>
+                        <p>After creating your account, you'll see an Organization UUID. Please enter it below:</p>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <input type="text" class="form-input" id="org_uuid" placeholder="e.g., org_1234567890abcdef">
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>What is an API?
+                            <span class="tooltip">
+                                <span class="tooltip-icon">?</span>
+                                <span class="tooltip-content">An API (Application Programming Interface) allows Claude Code to securely communicate with our servers to provide AI assistance</span>
+                            </span>
+                        </h3>
+                        <p>Think of it as a secure connection between Claude Code and our AI models. Your API token acts like a password that authorizes your team's usage.</p>
+                    </div>
+                `
+            },
+            {
+                title: 'Single Sign-On (SSO) Configuration',
+                type: 'info',
+                content: `
+                    <div class="info-box">
+                        <h3>Simplify Access with SSO</h3>
+                        <p>Single Sign-On allows your team to access Claude Code using your existing company credentials (like Google Workspace, Okta, or Microsoft Azure AD).</p>
+
+                        <h4 style="margin-top: 15px;">Benefits of SSO:</h4>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>No separate passwords to remember</li>
+                            <li>Automatic user provisioning</li>
+                            <li>Centralized access control</li>
+                            <li>Enhanced security</li>
+                        </ul>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Configure SSO (Recommended)</h4>
+                        <p>Follow our step-by-step guide to set up SSO for your organization:</p>
+                        <a href="https://support.anthropic.com/en/articles/11941803-setting-up-console-single-sign-on-with-claude-code-role-auto-provisioning" target="_blank">SSO Setup Guide →</a>
+                        <p style="margin-top: 10px; font-size: 0.9em;">This typically takes 15-30 minutes to configure</p>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Need Help?</h4>
+                        <p>If you encounter any issues during SSO setup:</p>
+                        <a href="https://support.anthropic.com/en" target="_blank">Contact Support →</a>
+                    </div>
+                `
+            },
+            {
+                title: 'Managing Costs and Usage',
+                type: 'info',
+                content: `
+                    <div class="info-box">
+                        <h3>Understanding Your Billing</h3>
+                        <div id="billing-info"></div>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Setting Spending Limits</h4>
+                        <p>You can set monthly spending caps for each workspace to prevent unexpected charges:</p>
+                        <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
+
+                        <div style="margin-top: 15px; padding: 10px; background: #F9F7F5; border-radius: 6px;">
+                            <p><strong>Tip:</strong> Start with a conservative limit and adjust based on actual usage</p>
+                        </div>
+                    </div>
+
+                    <div class="link-box">
+                        <p>💰 Detailed Pricing Information</p>
+                        <a href="https://docs.anthropic.com/en/docs/claude-code/pricing" target="_blank">View Pricing →</a>
+                    </div>
+
+                    <div class="link-box">
+                        <p>📊 Usage Monitoring</p>
+                        <a href="https://console.anthropic.com/settings/usage" target="_blank">View Usage Dashboard →</a>
+                    </div>
+                `
+            }
+        ];
+
+        function initWizard() {
+            showStep(0);
+        }
+
+        function selectLicense(type) {
+            selectedLicense = type;
+            customerData.license_type = type;
+
+            // Update UI
+            document.querySelectorAll('.license-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            // Show appropriate notice
+            const noticeBox = document.getElementById('license-notice');
+            const noticeText = document.getElementById('notice-text');
+
+            if (type === 'per-user') {
+                noticeBox.style.display = 'block';
+                noticeText.textContent = 'Per-user licenses require starting with API access first. After setup, our sales team will contact you within 24 hours to arrange your license transition.';
+            } else {
+                noticeBox.style.display = 'block';
+                noticeText.textContent = 'You can get started immediately with API tokens. Usage will be billed monthly based on consumption.';
+            }
+
+            // Enable next button
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function validateForm() {
+            const formGroups = document.querySelectorAll('.form-group');
+            let isValid = true;
+
+            formGroups.forEach(group => {
+                const input = group.querySelector('.form-input');
+                const errorMsg = group.querySelector('.error-message');
+
+                if (input && input.hasAttribute('data-required') && input.getAttribute('data-required') === 'true') {
+                    if (!input.value.trim()) {
+                        input.classList.add('error');
+                        if (errorMsg) {
+                            errorMsg.classList.add('show');
+                        }
+                        isValid = false;
+                    } else {
+                        input.classList.remove('error');
+                        if (errorMsg) {
+                            errorMsg.classList.remove('show');
+                        }
+                    }
+                }
+            });
+
+            return isValid;
+        }
+
+        function saveFormData() {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach(group => {
+                const input = group.querySelector('.form-input');
+                if (input && input.id) {
+                    customerData[input.id] = input.value;
+                }
+            });
+        }
+
+        function showStep(stepIndex) {
+            const content = document.getElementById('step-content');
+            const backBtn = document.getElementById('back-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progress = document.getElementById('progress');
+
+            if (stepIndex >= 0 && stepIndex < steps.length) {
+                const step = steps[stepIndex];
+                currentStep = stepIndex;
+
+                // Update progress bar
+                const progressPercent = ((stepIndex + 1) / steps.length) * 100;
+                progress.style.width = progressPercent + '%';
+
+                // Show/hide back button
+                backBtn.style.display = stepIndex > 0 ? 'block' : 'none';
+
+                // Update next button
+                if (stepIndex === steps.length - 1) {
+                    nextBtn.textContent = 'Complete Setup →';
+                } else {
+                    nextBtn.textContent = 'Continue →';
+                }
+
+                // Handle different step types
+                if (step.type === 'form') {
+                    let formHtml = `<div class="step-title">${step.title}</div>`;
+
+                    step.fields.forEach(field => {
+                        formHtml += `
+                            <div class="form-group">
+                                <label class="form-label">
+                                    ${field.label}
+                                    ${field.required ? '<span style="color: red;">*</span>' : ''}
+                                    ${field.tooltip ? `
+                                        <span class="tooltip">
+                                            <span class="tooltip-icon">?</span>
+                                            <span class="tooltip-content">${field.tooltip}</span>
+                                        </span>
+                                    ` : ''}
+                                </label>
+                        `;
+
+                        if (field.type === 'select') {
+                            formHtml += `
+                                <select class="form-input" id="${field.id}" data-required="${field.required}">
+                                    <option value="">Select an option...</option>
+                            `;
+                            field.options.forEach(option => {
+                                formHtml += `<option value="${option}">${option}</option>`;
+                            });
+                            formHtml += '</select>';
+                        } else if (field.type === 'textarea') {
+                            formHtml += `
+                                <textarea class="form-input" id="${field.id}"
+                                    placeholder="${field.placeholder || ''}"
+                                    data-required="${field.required}"></textarea>
+                            `;
+                        } else {
+                            formHtml += `
+                                <input type="${field.type}" class="form-input" id="${field.id}"
+                                    placeholder="${field.placeholder || ''}"
+                                    data-required="${field.required}">
+                            `;
+                        }
+
+                        formHtml += `
+                                <div class="error-message">This field is required</div>
+                            </div>
+                        `;
+                    });
+
+                    content.innerHTML = formHtml;
+
+                    // Restore saved values if any
+                    step.fields.forEach(field => {
+                        if (customerData[field.id]) {
+                            const element = document.getElementById(field.id);
+                            if (element) {
+                                element.value = customerData[field.id];
+                            }
+                        }
+                    });
+                } else if (step.type === 'licensing') {
+                    content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
+                    nextBtn.disabled = !selectedLicense;
+                } else {
+                    content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
+                    nextBtn.disabled = false;
+
+                    // Update billing info if on that step
+                    if (step.title === 'Managing Costs and Usage') {
+                        const billingInfo = document.getElementById('billing-info');
+                        if (billingInfo) {
+                            if (customerData.license_type === 'per-user') {
+                                billingInfo.innerHTML = `
+                                    <p><strong>Your Selection: Per-User License</strong></p>
+                                    <ul style="margin-left: 20px; margin-top: 10px;">
+                                        <li>$200/month per developer</li>
+                                        <li>Billed monthly</li>
+                                        <li>Includes unlimited usage within fair use limits</li>
+                                        <li>A sales representative will contact you to finalize licensing</li>
+                                    </ul>
+                                `;
+                            } else {
+                                billingInfo.innerHTML = `
+                                    <p><strong>Your Selection: API Token (Pay-as-you-go)</strong></p>
+                                    <ul style="margin-left: 20px; margin-top: 10px;">
+                                        <li>Average: $60-100/month per developer</li>
+                                        <li>Billed based on actual usage</li>
+                                        <li>Can set spending caps</li>
+                                        <li>Monthly invoicing available</li>
+                                    </ul>
+                                `;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currentStep === 2) { // Form step
+                if (!validateForm()) {
+                    return;
+                }
+                saveFormData();
+            } else if (currentStep === 3) { // API setup step
+                const orgUuid = document.getElementById('org_uuid');
+                if (orgUuid) {
+                    customerData.org_uuid = orgUuid.value;
+                }
+            }
+
+            if (currentStep < steps.length - 1) {
+                showStep(currentStep + 1);
+            } else {
+                completeSetup();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        async function completeSetup() {
+            // Save any final data
+            const orgUuid = document.getElementById('org_uuid');
+            if (orgUuid && orgUuid.value) {
+                customerData.org_uuid = orgUuid.value;
+            }
+
+            // Add timestamp
+            customerData.completed_at = new Date().toISOString();
+
+            // Submit data to backend
+            try {
+                const response = await fetch('/api/submit-wizard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(customerData)
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to submit data');
+                }
+            } catch (error) {
+                console.error('Error submitting data:', error);
+            }
+
+            // Show completion screen
+            showCompletionScreen();
+        }
+
+        function showCompletionScreen() {
+            const content = document.getElementById('step-content');
+            const backBtn = document.getElementById('back-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progress = document.getElementById('progress');
+
+            progress.style.width = '100%';
+            backBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+
+            let summaryHtml = '';
+            if (Object.keys(customerData).length > 0) {
+                summaryHtml = `
+                    <div class="summary-box">
+                        <h3>Setup Summary:</h3>
+                `;
+
+                const fieldLabels = {
+                    'company_name': 'Company',
+                    'your_name': 'Contact Name',
+                    'email': 'Email',
+                    'role': 'Role',
+                    'team_size': 'Team Size',
+                    'timeline': 'Timeline',
+                    'license_type': 'License Type',
+                    'org_uuid': 'Organization ID'
+                };
+
+                for (const [key, value] of Object.entries(customerData)) {
+                    if (value && fieldLabels[key]) {
+                        summaryHtml += `
+                            <div class="summary-item">
+                                <span class="summary-label">${fieldLabels[key]}:</span>
+                                <span class="summary-value">${value}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                summaryHtml += '</div>';
+            }
+
+            content.innerHTML = `
+                <div class="end-screen">
+                    <div class="success-icon">✓</div>
+                    <div class="step-title">Setup Complete!</div>
+                    <p>Your Claude Code setup information has been recorded. ${customerData.license_type === 'per-user' ? 'Our sales team will contact you within 24 hours.' : 'You can now start using Claude Code with your API token.'}</p>
+
+                    ${summaryHtml}
+
+                    <div class="action-box" style="margin-top: 30px;">
+                        <h4>Next Steps:</h4>
+                        <ol style="margin-left: 20px; line-height: 2;">
+                            <li>Complete SSO setup if not already done</li>
+                            <li>Install Claude Code for your developers</li>
+                            <li>Set up workspace spending limits</li>
+                            <li>Review the getting started guide</li>
+                        </ol>
+                    </div>
+
+                    <div class="quick-links">
+                        <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started" target="_blank" class="quick-link">
+                            🚀 Getting Started Guide
+                        </a>
+                        <a href="https://console.anthropic.com" target="_blank" class="quick-link">
+                            🎛️ Console Dashboard
+                        </a>
+                        <a href="https://support.anthropic.com/en" target="_blank" class="quick-link">
+                            🎫 Support Center
+                        </a>
+                        <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank" class="quick-link">
+                            📚 Documentation
+                        </a>
+                    </div>
+
+                    <button class="nav-button next" style="margin-top: 30px; display: block; margin-left: auto; margin-right: auto;" onclick="location.reload()">
+                        Start New Setup →
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize wizard on load
+        window.addEventListener('DOMContentLoaded', initWizard);
+    </script>
+</body>
+</html>

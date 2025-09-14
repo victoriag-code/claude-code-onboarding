@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Enterprise Onboarding Wizard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #F5F3F0 0%, #E6DDD4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .wizard-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .wizard-header {
+            background: #D4A574;
+            color: #1A1A1A;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .wizard-header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .wizard-header p {
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(26, 26, 26, 0.2);
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #1A1A1A;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        .wizard-content {
+            padding: 40px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .step-content {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .step-title {
+            color: #1A1A1A;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #D4A574;
+            font-weight: 600;
+        }
+        
+        .step-description {
+            color: #4A4A4A;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-button {
+            padding: 20px;
+            border: 2px solid #D4A574;
+            background: white;
+            color: #1A1A1A;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .option-button:hover {
+            background: #D4A574;
+            color: #1A1A1A;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+        }
+        
+        .option-button.selected {
+            background: #D4A574;
+            color: #1A1A1A;
+        }
+        
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            color: #1A1A1A;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+        
+        .form-input {
+            padding: 12px;
+            border: 2px solid #E6DDD4;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #D4A574;
+            background: #FDFCFB;
+        }
+        
+        .form-input.error {
+            border-color: #DC3545;
+        }
+        
+        .error-message {
+            color: #DC3545;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        select.form-input {
+            cursor: pointer;
+        }
+        
+        .info-box {
+            background: #F5F3F0;
+            border-left: 4px solid #D4A574;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .info-box h3 {
+            color: #1A1A1A;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #4A4A4A;
+        }
+        
+        .info-box li {
+            margin: 8px 0;
+        }
+        
+        .link-box {
+            background: #FDF9F5;
+            border: 1px solid #D4A574;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .link-box a {
+            color: #8B6F47;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .link-box a:hover {
+            text-decoration: underline;
+        }
+        
+        .action-box {
+            background: #E8F5E9;
+            border: 1px solid #66BB6A;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .action-box h4 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .action-box p {
+            color: #1B5E20;
+            margin-bottom: 10px;
+        }
+        
+        .action-box a {
+            color: #2E7D32;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .action-box a:hover {
+            text-decoration: underline;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E6DDD4;
+        }
+        
+        .nav-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-button.back {
+            background: #F5F3F0;
+            color: #4A4A4A;
+        }
+        
+        .nav-button.back:hover {
+            background: #E6DDD4;
+        }
+        
+        .nav-button.next {
+            background: #D4A574;
+            color: #1A1A1A;
+        }
+        
+        .nav-button.next:hover {
+            background: #C49660;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .end-screen {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .success-icon {
+            font-size: 4em;
+            color: #D4A574;
+            margin-bottom: 20px;
+        }
+        
+        .quick-links {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .quick-link {
+            padding: 15px;
+            background: #F5F3F0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1A1A1A;
+            transition: all 0.3s ease;
+            border: 1px solid #E6DDD4;
+        }
+        
+        .quick-link:hover {
+            background: #D4A574;
+            transform: translateY(-2px);
+        }
+        
+        .summary-box {
+            background: #F5F3F0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .summary-box h3 {
+            color: #1A1A1A;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .summary-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #E6DDD4;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 500;
+            color: #4A4A4A;
+        }
+        
+        .summary-value {
+            color: #1A1A1A;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>Claude Code Enterprise Onboarding</h1>
+            <p id="header-description">Interactive wizard for enterprise customers</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+        </div>
+        
+        <div class="wizard-content">
+            <div id="step-content" class="step-content">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            
+            <div class="navigation-buttons">
+                <button class="nav-button back" id="back-btn" onclick="previousStep()">← Back</button>
+                <button class="nav-button next" id="next-btn" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 0;
+        let selectedFlow = null;
+        let customerData = {};
+        
+        const flows = {
+            'net-new': {
+                name: 'Net New Customer',
+                steps: [
+                    {
+                        title: 'Initial Questions',
+                        type: 'form',
+                        fields: [
+                            {
+                                id: 'tested',
+                                label: 'Has your team tested Claude Code yet?',
+                                type: 'select',
+                                options: ['Not tested', 'Minimally tested', 'Extensively tested'],
+                                required: true
+                            },
+                            {
+                                id: 'developers',
+                                label: 'How many developers are in your organization?',
+                                type: 'text',
+                                placeholder: 'e.g., 50, 100-200, 500+',
+                                required: true
+                            },
+                            {
+                                id: 'other_tools',
+                                label: 'Are you using any other AI dev tools?',
+                                type: 'textarea',
+                                placeholder: 'e.g., GitHub Copilot, Cursor, Tabnine, etc.',
+                                required: true
+                            },
+                            {
+                                id: 'timeline',
+                                label: 'What is your timeline to roll out Claude Code?',
+                                type: 'text',
+                                placeholder: 'e.g., Immediately, Q1 2025, Within 3 months',
+                                required: true
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Clarification on Enterprise Tier',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Important Information:</h3>
+                                <p>There is no enterprise tier for Claude Code. It uses consumption-based pricing.</p>
+                                <p>Claude Code is not license-based but uses consumption pricing. Anthropic will send monthly invoices based on token usage.</p>
+                            </div>
+                            <div class="link-box">
+                                <p>📧 Send the Claude Code Pilot Guide to customer</p>
+                                <a href="https://docs.google.com/document/d/1uJwDxPuGND6yLrRlaWXRFI84YMhcEVv_1Q4cN9u4LL4/edit?tab=t.0" target="_blank">Access Pilot Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>📚 Claude Code Documentation</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank">View Full Documentation →</a>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Access Methods',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Claude Code Access Options:</h3>
+                                <ul>
+                                    <li><strong>1P API:</strong> Direct Anthropic API with Analytics Dashboard</li>
+                                    <li><strong>AWS Bedrock 3P:</strong> Through AWS infrastructure</li>
+                                    <li><strong>GCP Vertex 3P:</strong> Through Google Cloud infrastructure</li>
+                                </ul>
+                            </div>
+                            <div class="link-box">
+                                <p>📖 Getting Started Guide</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started" target="_blank">View Getting Started Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>🔗 Third-Party Integrations</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/third-party-integrations" target="_blank">Learn About 3P Options →</a>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Data Training Policy',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Data Protection Assurance:</h3>
+                                <p>Anthropic does not train models on Customer Content from Services.</p>
+                            </div>
+                            <div class="link-box">
+                                <p>📄 Commercial Terms of Service - Section B</p>
+                                <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank">Read Full Terms →</a>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'SSO Configuration',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Single Sign-On Setup</h3>
+                                <p>Enable SSO for your organization to streamline access.</p>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action Required:</h4>
+                                <p>Configure SSO following the guide below:</p>
+                                <a href="https://support.anthropic.com/en/articles/11941803-setting-up-console-single-sign-on-with-claude-code-role-auto-provisioning" target="_blank">SSO Setup Guide →</a>
+                            </div>
+                            <div class="action-box">
+                                <h4>If Issues Arise:</h4>
+                                <p>Submit a support ticket via the Console:</p>
+                                <a href="https://support.anthropic.com/en" target="_blank">Contact Support →</a>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Billing and Pricing',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Pricing Details:</h3>
+                                <ul>
+                                    <li>Consumption-based pricing (pay per token)</li>
+                                    <li>Average spend: $60-$100 per developer per month</li>
+                                    <li>Ability to cap spend per workspace</li>
+                                    <li>Monthly invoicing available</li>
+                                </ul>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action: Managing Spend Caps</h4>
+                                <p>Set up and manage workspace spending limits:</p>
+                                <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>💰 Pricing Information</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/pricing" target="_blank">View Detailed Pricing →</a>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            'c4e': {
+                name: 'C4E Customer',
+                steps: [
+                    {
+                        title: 'C4E Customer Information',
+                        type: 'form',
+                        fields: [
+                            {
+                                id: 'org_uuid',
+                                label: 'What is your Org UUID?',
+                                type: 'text',
+                                placeholder: 'Enter your organization UUID',
+                                required: true
+                            },
+                            {
+                                id: 'access_method',
+                                label: 'How will you be accessing Claude Code?',
+                                type: 'select',
+                                options: ['1P API', 'AWS Bedrock 3P', 'GCP Vertex 3P', 'Unsure'],
+                                required: true
+                            },
+                            {
+                                id: 'tested',
+                                label: 'Has your team tested Claude Code yet?',
+                                type: 'select',
+                                options: ['Not tested', 'Minimally tested', 'Extensively tested'],
+                                required: true
+                            },
+                            {
+                                id: 'developers',
+                                label: 'How many developers are in your organization?',
+                                type: 'text',
+                                placeholder: 'e.g., 50, 100-200, 500+',
+                                required: true
+                            },
+                            {
+                                id: 'other_tools',
+                                label: 'Are you using any other AI dev tools?',
+                                type: 'textarea',
+                                placeholder: 'e.g., GitHub Copilot, Cursor, Tabnine, etc.',
+                                required: true
+                            },
+                            {
+                                id: 'timeline',
+                                label: 'What is your timeline to roll out Claude Code?',
+                                type: 'text',
+                                placeholder: 'e.g., Immediately, Q1 2025, Within 3 months',
+                                required: true
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Setup Recommendation',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Recommendation:</h3>
+                                <p>If unsure about access method, we recommend testing Claude Code via 1P API first.</p>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action Required:</h4>
+                                <p>Create a Console account and share the UUID once created:</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started#creating-your-account" target="_blank">Account Creation Guide →</a>
+                            </div>
+                            <div class="info-box">
+                                <h3>Note:</h3>
+                                <p>Your C4E and Claude Code accounts will be linked under the same SSO.</p>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'SSO Configuration',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Single Sign-On Setup</h3>
+                                <p>Your C4E and Claude Code accounts can be united under the same SSO.</p>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action Required:</h4>
+                                <p>Configure SSO following the guide below:</p>
+                                <a href="https://support.anthropic.com/en/articles/11941803-setting-up-console-single-sign-on-with-claude-code-role-auto-provisioning" target="_blank">SSO Setup Guide →</a>
+                            </div>
+                            <div class="action-box">
+                                <h4>If Issues Arise:</h4>
+                                <p>Submit a support ticket via the Console:</p>
+                                <a href="https://support.anthropic.com/en" target="_blank">Contact Support →</a>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Billing and Pricing',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Pricing Details:</h3>
+                                <ul>
+                                    <li>Consumption-based pricing (pay per token)</li>
+                                    <li>Average spend: $60-$100 per developer per month</li>
+                                    <li>Ability to cap spend per workspace</li>
+                                    <li>Monthly invoicing available</li>
+                                </ul>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action: Managing Spend Caps</h4>
+                                <p>Set up and manage workspace spending limits:</p>
+                                <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>📚 Full Documentation</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank">View Documentation →</a>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            'api-1p': {
+                name: 'Existing API 1P Customer',
+                steps: [
+                    {
+                        title: 'API 1P Customer Information',
+                        type: 'form',
+                        fields: [
+                            {
+                                id: 'tested',
+                                label: 'Has your team tested Claude Code yet?',
+                                type: 'select',
+                                options: ['Not tested', 'Minimally tested', 'Extensively tested'],
+                                required: true
+                            },
+                            {
+                                id: 'developers',
+                                label: 'How many developers are in your organization?',
+                                type: 'text',
+                                placeholder: 'e.g., 50, 100-200, 500+',
+                                required: true
+                            },
+                            {
+                                id: 'other_tools',
+                                label: 'Are you using any other AI dev tools?',
+                                type: 'textarea',
+                                placeholder: 'e.g., GitHub Copilot, Cursor, Tabnine, etc.',
+                                required: true
+                            },
+                            {
+                                id: 'timeline',
+                                label: 'What is your timeline to roll out Claude Code?',
+                                type: 'text',
+                                placeholder: 'e.g., Immediately, Q1 2025, Within 3 months',
+                                required: true
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Existing Terms Confirmation',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Data Protection:</h3>
+                                <p>As an existing 1P API Customer, you've already agreed to our Terms of Service, which states that Anthropic does not train on Customer data.</p>
+                            </div>
+                            <div class="link-box">
+                                <p>📄 Review Terms of Service</p>
+                                <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank">View Commercial Terms →</a>
+                            </div>
+                        `
+                    },
+                    {
+                        title: 'Pricing Information',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Pricing Details:</h3>
+                                <ul>
+                                    <li>Consumption-based pricing (pay per token)</li>
+                                    <li>Average spend: $60-$100 per developer per month</li>
+                                    <li>Ability to cap spend per workspace</li>
+                                </ul>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action: Getting Started</h4>
+                                <p>Begin using Claude Code with your existing API account:</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started" target="_blank">Getting Started Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>📚 Full Documentation</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank">View Documentation →</a>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            'api-3p-no': {
+                name: 'Existing API 3P (Stay 3P)',
+                steps: [
+                    {
+                        title: 'API 3P Customer Information',
+                        type: 'form',
+                        fields: [
+                            {
+                                id: 'tested',
+                                label: 'Has your team tested Claude Code yet?',
+                                type: 'select',
+                                options: ['Not tested', 'Minimally tested', 'Extensively tested'],
+                                required: true
+                            },
+                            {
+                                id: 'developers',
+                                label: 'How many developers are in your organization?',
+                                type: 'text',
+                                placeholder: 'e.g., 50, 100-200, 500+',
+                                required: true
+                            },
+                            {
+                                id: 'other_tools',
+                                label: 'Are you using any other AI dev tools?',
+                                type: 'textarea',
+                                placeholder: 'e.g., GitHub Copilot, Cursor, Tabnine, etc.',
+                                required: true
+                            },
+                            {
+                                id: 'timeline',
+                                label: 'What is your timeline to roll out Claude Code?',
+                                type: 'text',
+                                placeholder: 'e.g., Immediately, Q1 2025, Within 3 months',
+                                required: true
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Claude Code via 3P',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Important Information:</h3>
+                                <p>Claude Code uses consumption-based pricing. You can burn down your 3P committed spend with Claude Code usage.</p>
+                            </div>
+                            <div class="link-box">
+                                <p>📧 Send the Claude Code Pilot Guide to customer</p>
+                                <a href="https://docs.google.com/document/d/1uJwDxPuGND6yLrRlaWXRFI84YMhcEVv_1Q4cN9u4LL4/edit?tab=t.0" target="_blank">Access Pilot Guide →</a>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action: Third-Party Setup</h4>
+                                <p>Learn how to use Claude Code with your third-party provider:</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/third-party-integrations" target="_blank">Third-Party Integration Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>🔗 AWS Bedrock Setup</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/third-party-integrations#aws-bedrock" target="_blank">AWS Bedrock Instructions →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>🔗 GCP Vertex Setup</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/third-party-integrations#google-cloud-vertex-ai" target="_blank">GCP Vertex Instructions →</a>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            'api-3p-yes': {
+                name: 'Existing API 3P (Create 1P)',
+                steps: [
+                    {
+                        title: 'Switching to 1P Account',
+                        type: 'info',
+                        content: `
+                            <div class="info-box">
+                                <h3>Creating Console 1P Account</h3>
+                                <p>You'll follow the same process as a Net New Customer to create your 1P Console account.</p>
+                            </div>
+                            <div class="action-box">
+                                <h4>Customer Action Required:</h4>
+                                <p>Create your Console account following this guide:</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started#creating-your-account" target="_blank">Account Creation Guide →</a>
+                            </div>
+                            <div class="link-box">
+                                <p>📚 Full Documentation</p>
+                                <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank">View Documentation →</a>
+                            </div>
+                            <p style="margin-top: 20px;"><strong>Note:</strong> After creating your account, you'll follow the Net New Customer flow for the remaining steps.</p>
+                        `
+                    }
+                ]
+            }
+        };
+        
+        function initWizard() {
+            showStep(0);
+        }
+        
+        function validateForm() {
+            const formGroups = document.querySelectorAll('.form-group');
+            let isValid = true;
+            
+            formGroups.forEach(group => {
+                const input = group.querySelector('.form-input');
+                const errorMsg = group.querySelector('.error-message');
+                
+                if (input && input.hasAttribute('data-required') && !input.value.trim()) {
+                    input.classList.add('error');
+                    if (errorMsg) {
+                        errorMsg.classList.add('show');
+                    }
+                    isValid = false;
+                } else if (input) {
+                    input.classList.remove('error');
+                    if (errorMsg) {
+                        errorMsg.classList.remove('show');
+                    }
+                }
+            });
+            
+            return isValid;
+        }
+        
+        function saveFormData() {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach(group => {
+                const input = group.querySelector('.form-input');
+                if (input && input.id) {
+                    customerData[input.id] = input.value;
+                }
+            });
+        }
+        
+        function showStep(step) {
+            const content = document.getElementById('step-content');
+            const backBtn = document.getElementById('back-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progress = document.getElementById('progress');
+            
+            if (step === 0) {
+                // Initial customer type selection
+                content.innerHTML = `
+                    <div class="step-title">Welcome! Let's identify your customer type</div>
+                    <div class="step-description">Please select the type of customer you're working with:</div>
+                    <div class="options-container">
+                        <button class="option-button" onclick="selectFlow('net-new')">
+                            <strong>Net New Customer</strong><br>
+                            <small>No existing relationship with Anthropic</small>
+                        </button>
+                        <button class="option-button" onclick="selectFlow('c4e')">
+                            <strong>C4E Customer</strong><br>
+                            <small>Claude for Enterprise customer</small>
+                        </button>
+                        <button class="option-button" onclick="selectFlow('api-1p')">
+                            <strong>Existing API 1P</strong><br>
+                            <small>First-party API customer</small>
+                        </button>
+                        <button class="option-button" onclick="selectFlow('api-3p')">
+                            <strong>Existing API 3P</strong><br>
+                            <small>Third-party API customer (AWS/GCP)</small>
+                        </button>
+                    </div>
+                `;
+                backBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                progress.style.width = '10%';
+            } else if (selectedFlow === 'api-3p') {
+                // Special case for 3P API - ask if they want to create 1P account
+                content.innerHTML = `
+                    <div class="step-title">Console Account Decision</div>
+                    <div class="step-description">Would the customer like to create a Console 1P account?</div>
+                    <div class="options-container">
+                        <button class="option-button" onclick="selectFlow('api-3p-no')">
+                            <strong>No - Stay with 3P</strong><br>
+                            <small>Continue using third-party integration</small>
+                        </button>
+                        <button class="option-button" onclick="selectFlow('api-3p-yes')">
+                            <strong>Yes - Create 1P Account</strong><br>
+                            <small>Follow Net New Customer flow</small>
+                        </button>
+                    </div>
+                `;
+                backBtn.style.display = 'block';
+                nextBtn.style.display = 'none';
+                progress.style.width = '30%';
+            } else if (selectedFlow && flows[selectedFlow]) {
+                // Show flow steps
+                const flow = flows[selectedFlow];
+                const stepIndex = step - 1;
+                
+                if (stepIndex < flow.steps.length) {
+                    const currentStepData = flow.steps[stepIndex];
+                    
+                    if (currentStepData.type === 'form') {
+                        // Create form fields
+                        let formHtml = `<div class="step-title">${currentStepData.title}</div>`;
+                        formHtml += '<div class="form-container">';
+                        
+                        currentStepData.fields.forEach(field => {
+                            formHtml += `
+                                <div class="form-group">
+                                    <label class="form-label" for="${field.id}">${field.label}</label>
+                            `;
+                            
+                            if (field.type === 'select') {
+                                formHtml += `
+                                    <select class="form-input" id="${field.id}" ${field.required ? 'data-required="true"' : ''}>
+                                        <option value="">Select an option...</option>
+                                `;
+                                field.options.forEach(option => {
+                                    formHtml += `<option value="${option}">${option}</option>`;
+                                });
+                                formHtml += '</select>';
+                            } else if (field.type === 'textarea') {
+                                formHtml += `
+                                    <textarea class="form-input" id="${field.id}" 
+                                        placeholder="${field.placeholder || ''}" 
+                                        ${field.required ? 'data-required="true"' : ''}>${customerData[field.id] || ''}</textarea>
+                                `;
+                            } else {
+                                formHtml += `
+                                    <input type="text" class="form-input" id="${field.id}" 
+                                        placeholder="${field.placeholder || ''}" 
+                                        value="${customerData[field.id] || ''}"
+                                        ${field.required ? 'data-required="true"' : ''}>
+                                `;
+                            }
+                            
+                            formHtml += `
+                                    <div class="error-message">This field is required</div>
+                                </div>
+                            `;
+                        });
+                        
+                        formHtml += '</div>';
+                        content.innerHTML = formHtml;
+                        
+                        // Restore saved values if they exist
+                        currentStepData.fields.forEach(field => {
+                            if (customerData[field.id]) {
+                                const element = document.getElementById(field.id);
+                                if (element) {
+                                    element.value = customerData[field.id];
+                                }
+                            }
+                        });
+                    } else {
+                        // Info step
+                        content.innerHTML = `
+                            <div class="step-title">${currentStepData.title}</div>
+                            ${currentStepData.content}
+                        `;
+                    }
+                    
+                    backBtn.style.display = 'block';
+                    nextBtn.style.display = 'block';
+                    
+                    if (stepIndex === flow.steps.length - 1) {
+                        nextBtn.textContent = 'Complete →';
+                    } else {
+                        nextBtn.textContent = 'Next →';
+                    }
+                    
+                    const progressPercent = ((stepIndex + 1) / flow.steps.length) * 70 + 30;
+                    progress.style.width = progressPercent + '%';
+                } else {
+                    // End screen
+                    showEndScreen();
+                }
+            }
+            
+            currentStep = step;
+        }
+        
+        function selectFlow(flow) {
+            if (flow === 'api-3p') {
+                selectedFlow = 'api-3p';
+                showStep(1);
+            } else if (flow === 'api-3p-yes') {
+                // Redirect to net-new flow
+                selectedFlow = 'net-new';
+                document.getElementById('header-description').textContent = 'Following Net New Customer Flow (from 3P API)';
+                showStep(1);
+            } else {
+                selectedFlow = flow;
+                const flowName = flows[flow] ? flows[flow].name : flow;
+                document.getElementById('header-description').textContent = `Onboarding Flow: ${flowName}`;
+                showStep(1);
+            }
+        }
+        
+        function nextStep() {
+            if (selectedFlow && flows[selectedFlow]) {
+                const flow = flows[selectedFlow];
+                const stepIndex = currentStep - 1;
+                
+                // Check if current step is a form and validate
+                if (stepIndex >= 0 && stepIndex < flow.steps.length) {
+                    const currentStepData = flow.steps[stepIndex];
+                    if (currentStepData.type === 'form') {
+                        if (!validateForm()) {
+                            return; // Don't proceed if validation fails
+                        }
+                        saveFormData(); // Save form data before proceeding
+                    }
+                }
+                
+                if (stepIndex < flow.steps.length - 1) {
+                    showStep(currentStep + 1);
+                } else {
+                    showEndScreen();
+                }
+            }
+        }
+        
+        function previousStep() {
+            if (currentStep > 0) {
+                // Save current form data if it's a form step
+                if (selectedFlow && flows[selectedFlow]) {
+                    const flow = flows[selectedFlow];
+                    const stepIndex = currentStep - 1;
+                    if (stepIndex >= 0 && stepIndex < flow.steps.length) {
+                        const currentStepData = flow.steps[stepIndex];
+                        if (currentStepData.type === 'form') {
+                            saveFormData();
+                        }
+                    }
+                }
+                
+                if (currentStep === 1) {
+                    selectedFlow = null;
+                    document.getElementById('header-description').textContent = 'Interactive wizard for enterprise customers';
+                }
+                showStep(currentStep - 1);
+            }
+        }
+        
+        function showEndScreen() {
+            const content = document.getElementById('step-content');
+            const backBtn = document.getElementById('back-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progress = document.getElementById('progress');
+            
+            // Create summary of collected data
+            let summaryHtml = '';
+            if (Object.keys(customerData).length > 0) {
+                summaryHtml = `
+                    <div class="summary-box">
+                        <h3>Customer Information Summary:</h3>
+                `;
+                
+                const fieldLabels = {
+                    'tested': 'Testing Status',
+                    'developers': 'Number of Developers',
+                    'other_tools': 'Other AI Tools',
+                    'timeline': 'Timeline',
+                    'org_uuid': 'Organization UUID',
+                    'access_method': 'Access Method'
+                };
+                
+                for (const [key, value] of Object.entries(customerData)) {
+                    if (value) {
+                        summaryHtml += `
+                            <div class="summary-item">
+                                <span class="summary-label">${fieldLabels[key] || key}:</span>
+                                <span class="summary-value">${value}</span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                summaryHtml += '</div>';
+            }
+            
+            content.innerHTML = `
+                <div class="end-screen">
+                    <div class="success-icon">✓</div>
+                    <div class="step-title">Claude Code Pilot Ready!</div>
+                    <p>The customer is now set up and ready to kick off their Claude Code Pilot.</p>
+                    
+                    ${summaryHtml}
+                    
+                    <div class="quick-links">
+                        <a href="https://docs.google.com/document/d/1uJwDxPuGND6yLrRlaWXRFI84YMhcEVv_1Q4cN9u4LL4/edit?tab=t.0" target="_blank" class="quick-link">
+                            📄 Pilot Guide
+                        </a>
+                        <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank" class="quick-link">
+                            📚 Documentation
+                        </a>
+                        <a href="https://support.anthropic.com/en/articles/11941803-setting-up-console-single-sign-on-with-claude-code-role-auto-provisioning" target="_blank" class="quick-link">
+                            🔐 SSO Setup
+                        </a>
+                        <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank" class="quick-link">
+                            💰 Spend Management
+                        </a>
+                        <a href="https://support.anthropic.com/en" target="_blank" class="quick-link">
+                            🎫 Support Center
+                        </a>
+                        <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started" target="_blank" class="quick-link">
+                            🚀 Getting Started
+                        </a>
+                    </div>
+                    
+                    <button class="nav-button next" style="margin-top: 30px" onclick="resetWizard()">
+                        Start New Onboarding →
+                    </button>
+                </div>
+            `;
+            
+            backBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            progress.style.width = '100%';
+        }
+        
+        function resetWizard() {
+            currentStep = 0;
+            selectedFlow = null;
+            customerData = {};
+            document.getElementById('header-description').textContent = 'Interactive wizard for enterprise customers';
+            showStep(0);
+        }
+        
+        // Initialize wizard on load
+        window.addEventListener('DOMContentLoaded', initWizard);
+    </script>
+</body>
+</html>
