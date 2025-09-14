@@ -545,9 +545,10 @@
     <script>
         let currentStep = 0;
         let selectedLicense = null;
+        let selectedAccessMethod = null;
         let customerData = {};
 
-        const steps = [
+        const baseSteps = [
             {
                 title: 'Welcome to Claude Code Setup',
                 type: 'info',
@@ -652,7 +653,7 @@
                         id: 'team_size',
                         label: 'Development Team Size',
                         type: 'select',
-                        options: ['1-10 developers', '11-50 developers', '51-200 developers', '200+ developers'],
+                        options: ['Under 100', '101-300', '301-500', '501-1000', '1000+'],
                         required: true,
                         tooltip: 'Include all developers who will use Claude Code'
                     },
@@ -673,43 +674,73 @@
                     }
                 ]
             },
-            {
-                title: 'API Access Setup',
-                type: 'info',
+        ];
+
+        const apiSetupStep = {
+            title: 'API Access Setup',
+            type: 'api-setup',
                 content: `
                     <div class="info-box">
-                        <h3>Setting Up API Access</h3>
-                        <p>To get started with Claude Code, you'll need to create an API account first. This allows immediate access while we process any license requests.</p>
+                        <h3>How will you access Claude Code?</h3>
+                        <p>Select your preferred API access method:</p>
                     </div>
 
-                    <div class="action-box">
-                        <h4>Step 1: Create Your Console Account</h4>
-                        <p>Visit the link below to create your organization's account:</p>
-                        <a href="https://console.anthropic.com" target="_blank">Create Console Account →</a>
-                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">This will open in a new tab</p>
-                    </div>
+                    <div class="licensing-options" style="margin-bottom: 30px;">
+                        <div class="license-card" onclick="selectAccessMethod('first-party')">
+                            <div class="radio-indicator"></div>
+                            <h3>First-Party API (Direct)
+                                <span class="tooltip">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-content">Access Claude Code directly through Anthropic's API and Console</span>
+                                </span>
+                            </h3>
+                            <p>Use Anthropic's Console and API directly</p>
+                            <ul>
+                                <li>Full Console dashboard access</li>
+                                <li>Usage monitoring and analytics</li>
+                                <li>Direct API key management</li>
+                            </ul>
+                        </div>
 
-                    <div class="action-box">
-                        <h4>Step 2: Note Your Organization ID</h4>
-                        <p>After creating your account, you'll see an Organization UUID. Please enter it below:</p>
-                        <div class="form-group" style="margin-top: 15px;">
-                            <input type="text" class="form-input" id="org_uuid" placeholder="e.g., org_1234567890abcdef">
+                        <div class="license-card" onclick="selectAccessMethod('bedrock')">
+                            <div class="radio-indicator"></div>
+                            <h3>AWS Bedrock
+                                <span class="tooltip">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-content">Access Claude Code through your existing AWS Bedrock integration</span>
+                                </span>
+                            </h3>
+                            <p>Use your existing AWS infrastructure</p>
+                            <ul>
+                                <li>Integrated with AWS services</li>
+                                <li>AWS billing and monitoring</li>
+                                <li>Enterprise AWS agreements</li>
+                            </ul>
+                        </div>
+
+                        <div class="license-card" onclick="selectAccessMethod('vertex')">
+                            <div class="radio-indicator"></div>
+                            <h3>Google Cloud Vertex AI
+                                <span class="tooltip">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-content">Access Claude Code through Google Cloud's Vertex AI platform</span>
+                                </span>
+                            </h3>
+                            <p>Use your existing GCP infrastructure</p>
+                            <ul>
+                                <li>Integrated with GCP services</li>
+                                <li>Google Cloud billing</li>
+                                <li>Enterprise GCP agreements</li>
+                            </ul>
                         </div>
                     </div>
 
-                    <div class="info-box">
-                        <h3>What is an API?
-                            <span class="tooltip">
-                                <span class="tooltip-icon">?</span>
-                                <span class="tooltip-content">An API (Application Programming Interface) allows Claude Code to securely communicate with our servers to provide AI assistance</span>
-                            </span>
-                        </h3>
-                        <p>Think of it as a secure connection between Claude Code and our AI models. Your API token acts like a password that authorizes your team's usage.</p>
-                    </div>
+                    <div id="access-method-content"></div>
                 `
-            },
-            {
-                title: 'Single Sign-On (SSO) Configuration',
+        };
+
+        const ssoStep = {
+            title: 'Single Sign-On (SSO) Configuration',
                 type: 'info',
                 content: `
                     <div class="info-box">
@@ -738,41 +769,55 @@
                         <a href="https://support.anthropic.com/en" target="_blank">Contact Support →</a>
                     </div>
                 `
-            },
-            {
-                title: 'Managing Costs and Usage',
-                type: 'info',
+        };
+
+        const billingStep = {
+            title: 'Managing Costs and Usage',
+                type: 'billing',
                 content: `
                     <div class="info-box">
                         <h3>Understanding Your Billing</h3>
                         <div id="billing-info"></div>
                     </div>
 
-                    <div class="action-box">
-                        <h4>Setting Spending Limits</h4>
-                        <p>You can set monthly spending caps for each workspace to prevent unexpected charges:</p>
-                        <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
-
-                        <div style="margin-top: 15px; padding: 10px; background: #F9F7F5; border-radius: 6px;">
-                            <p><strong>Tip:</strong> Start with a conservative limit and adjust based on actual usage</p>
-                        </div>
-                    </div>
+                    <div id="billing-content"></div>
 
                     <div class="link-box">
                         <p>💰 Detailed Pricing Information</p>
                         <a href="https://docs.anthropic.com/en/docs/claude-code/costs" target="_blank">View Pricing →</a>
                     </div>
-
-                    <div class="link-box">
-                        <p>📊 Usage Monitoring</p>
-                        <a href="https://console.anthropic.com/settings/usage" target="_blank">View Usage Dashboard →</a>
-                    </div>
                 `
-            }
-        ];
+        };
+
+        // Dynamic steps array that will be built based on user choices
+        let steps = [];
 
         function initWizard() {
+            // Build initial steps (up to license selection)
+            steps = [...baseSteps];
             showStep(0);
+        }
+
+        function buildStepsBasedOnLicense() {
+            // Start with base steps
+            steps = [...baseSteps];
+
+            // Add steps based on license type
+            if (selectedLicense === 'api-token') {
+                // API Token users get the full setup flow
+                steps.push(apiSetupStep);
+                steps.push(ssoStep);
+                steps.push(billingStep);
+            }
+            // Per-user license customers go straight to completion after form
+            // Sales team will handle SSO, billing, etc.
+
+            // Update progress bar as steps may have changed
+            if (currentStep >= 0) {
+                const progress = document.getElementById('progress');
+                const progressPercent = ((currentStep + 1) / steps.length) * 100;
+                progress.style.width = progressPercent + '%';
+            }
         }
 
         function selectLicense(type) {
@@ -791,10 +836,87 @@
 
             if (type === 'per-user') {
                 noticeBox.style.display = 'block';
-                noticeText.textContent = 'Per-user licenses require starting with API access first. After setup, our sales team will contact you within 24 hours to arrange your license transition.';
+                noticeText.textContent = 'Per-user licenses are handled through our sales team. After completing this setup, our sales team will contact you soon to arrange your license.';
             } else {
                 noticeBox.style.display = 'block';
                 noticeText.textContent = 'You can get started immediately with API tokens. Usage will be billed monthly based on consumption.';
+            }
+
+            // Enable next button
+            document.getElementById('next-btn').disabled = false;
+
+            // Rebuild steps based on license selection
+            buildStepsBasedOnLicense();
+        }
+
+        function selectAccessMethod(method) {
+            selectedAccessMethod = method;
+            customerData.access_method = method;
+
+            // Update UI
+            document.querySelectorAll('.license-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            // Show appropriate content based on method
+            const contentDiv = document.getElementById('access-method-content');
+
+            if (method === 'first-party') {
+                contentDiv.innerHTML = `
+                    <div class="action-box">
+                        <h4>Step 1: Create Your Console Account</h4>
+                        <p>Visit the link below to create your organization's account:</p>
+                        <a href="https://console.anthropic.com" target="_blank">Create Console Account →</a>
+                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">This will open in a new tab</p>
+                    </div>
+
+                    <div class="action-box">
+                        <h4>Step 2: Note Your Organization ID</h4>
+                        <p>After creating your account, you'll see an Organization UUID. Please enter it below:</p>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <input type="text" class="form-input" id="org_uuid" placeholder="e.g., org_1234567890abcdef">
+                        </div>
+                    </div>
+                `;
+            } else if (method === 'bedrock') {
+                contentDiv.innerHTML = `
+                    <div class="action-box">
+                        <h4>AWS Bedrock Setup</h4>
+                        <p>You can access Claude Code through your existing AWS Bedrock integration.</p>
+                        <p style="margin-top: 10px;">To get started:</p>
+                        <ol style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                            <li>Ensure Claude models are enabled in your AWS Bedrock console</li>
+                            <li>Configure IAM permissions for your developers</li>
+                            <li>Use the AWS SDK or Bedrock API to access Claude Code</li>
+                        </ol>
+                        <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html" target="_blank" style="margin-top: 15px; display: inline-block;">AWS Bedrock Documentation →</a>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Note</h3>
+                        <p>Billing and usage monitoring will be handled through your AWS account. You won't have access to Anthropic's Console dashboard.</p>
+                    </div>
+                `;
+            } else if (method === 'vertex') {
+                contentDiv.innerHTML = `
+                    <div class="action-box">
+                        <h4>Google Cloud Vertex AI Setup</h4>
+                        <p>You can access Claude Code through Google Cloud's Vertex AI platform.</p>
+                        <p style="margin-top: 10px;">To get started:</p>
+                        <ol style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                            <li>Enable the Vertex AI API in your GCP project</li>
+                            <li>Configure authentication and permissions</li>
+                            <li>Use the Vertex AI SDK to access Claude Code</li>
+                        </ol>
+                        <a href="https://cloud.google.com/vertex-ai/docs" target="_blank" style="margin-top: 15px; display: inline-block;">Vertex AI Documentation →</a>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Note</h3>
+                        <p>Billing and usage monitoring will be handled through your Google Cloud account. You won't have access to Anthropic's Console dashboard.</p>
+                    </div>
+                `;
             }
 
             // Enable next button
@@ -924,51 +1046,109 @@
                 } else if (step.type === 'licensing') {
                     content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
                     nextBtn.disabled = !selectedLicense;
-                } else {
+                } else if (step.type === 'api-setup') {
+                    content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
+                    nextBtn.disabled = !selectedAccessMethod;
+                } else if (step.type === 'billing') {
                     content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
                     nextBtn.disabled = false;
 
-                    // Update billing info if on that step
-                    if (step.title === 'Managing Costs and Usage') {
-                        const billingInfo = document.getElementById('billing-info');
-                        if (billingInfo) {
-                            if (customerData.license_type === 'per-user') {
-                                billingInfo.innerHTML = `
-                                    <p><strong>Your Selection: Per-User License</strong></p>
-                                    <ul style="margin-left: 20px; margin-top: 10px;">
-                                        <li>$200/month per developer</li>
-                                        <li>Billed monthly</li>
-                                        <li>Includes unlimited usage within fair use limits</li>
-                                        <li>A sales representative will contact you to finalize licensing</li>
-                                    </ul>
-                                `;
-                            } else {
-                                billingInfo.innerHTML = `
-                                    <p><strong>Your Selection: API Token (Pay-as-you-go)</strong></p>
-                                    <ul style="margin-left: 20px; margin-top: 10px;">
-                                        <li>Average: $60-100/month per developer</li>
-                                        <li>Billed based on actual usage</li>
-                                        <li>Can set spending caps</li>
-                                        <li>Monthly invoicing available</li>
-                                    </ul>
-                                `;
-                            }
+                    // Update billing info
+                    const billingInfo = document.getElementById('billing-info');
+                    if (billingInfo) {
+                        if (customerData.license_type === 'per-user') {
+                            billingInfo.innerHTML = `
+                                <p><strong>Your Selection: Per-User License</strong></p>
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li>$200/month per developer</li>
+                                    <li>Billed monthly</li>
+                                    <li>Includes unlimited usage within fair use limits</li>
+                                    <li>A sales representative will contact you to finalize licensing</li>
+                                </ul>
+                            `;
+                        } else {
+                            billingInfo.innerHTML = `
+                                <p><strong>Your Selection: API Token (Pay-as-you-go)</strong></p>
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li>Average: $60-100/month per developer</li>
+                                    <li>Billed based on actual usage</li>
+                                    <li>Can set spending caps</li>
+                                    <li>Monthly invoicing available</li>
+                                </ul>
+                            `;
                         }
                     }
+
+                    // Update billing content based on access method
+                    const billingContent = document.getElementById('billing-content');
+                    if (billingContent) {
+                        if (customerData.access_method === 'first-party') {
+                            billingContent.innerHTML = `
+                                <div class="action-box">
+                                    <h4>Setting Spending Limits</h4>
+                                    <p>You can set monthly spending caps for each workspace to prevent unexpected charges:</p>
+                                    <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
+
+                                    <div style="margin-top: 15px; padding: 10px; background: #F9F7F5; border-radius: 6px;">
+                                        <p><strong>Tip:</strong> Start with a conservative limit and adjust based on actual usage</p>
+                                    </div>
+                                </div>
+
+                                <div class="link-box">
+                                    <p>📊 Usage Monitoring</p>
+                                    <a href="https://console.anthropic.com/settings/usage" target="_blank">View Usage Dashboard →</a>
+                                </div>
+                            `;
+                        } else if (customerData.access_method === 'bedrock') {
+                            billingContent.innerHTML = `
+                                <div class="action-box">
+                                    <h4>AWS Billing Management</h4>
+                                    <p>Monitor and control your Claude Code usage through AWS:</p>
+                                    <ul style="margin-left: 20px; margin-top: 10px;">
+                                        <li>Set up AWS Budgets for cost control</li>
+                                        <li>Use CloudWatch for usage monitoring</li>
+                                        <li>Configure billing alerts in AWS Cost Explorer</li>
+                                    </ul>
+                                    <a href="https://aws.amazon.com/aws-cost-management/" target="_blank" style="margin-top: 15px; display: inline-block;">AWS Cost Management →</a>
+                                </div>
+                            `;
+                        } else if (customerData.access_method === 'vertex') {
+                            billingContent.innerHTML = `
+                                <div class="action-box">
+                                    <h4>Google Cloud Billing Management</h4>
+                                    <p>Monitor and control your Claude Code usage through GCP:</p>
+                                    <ul style="margin-left: 20px; margin-top: 10px;">
+                                        <li>Set up budget alerts in Google Cloud Console</li>
+                                        <li>Use Cloud Monitoring for usage tracking</li>
+                                        <li>Configure spending limits per project</li>
+                                    </ul>
+                                    <a href="https://cloud.google.com/billing/docs" target="_blank" style="margin-top: 15px; display: inline-block;">GCP Billing Documentation →</a>
+                                </div>
+                            `;
+                        }
+                    }
+                } else {
+                    content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
+                    nextBtn.disabled = false;
                 }
             }
         }
 
         function nextStep() {
-            if (currentStep === 2) { // Form step
+            const currentStepData = steps[currentStep];
+
+            if (currentStepData && currentStepData.type === 'form') {
                 if (!validateForm()) {
                     return;
                 }
                 saveFormData();
-            } else if (currentStep === 3) { // API setup step
-                const orgUuid = document.getElementById('org_uuid');
-                if (orgUuid) {
-                    customerData.org_uuid = orgUuid.value;
+            } else if (currentStepData && currentStepData.type === 'api-setup') {
+                // Save org_uuid only for first-party users
+                if (customerData.access_method === 'first-party') {
+                    const orgUuid = document.getElementById('org_uuid');
+                    if (orgUuid) {
+                        customerData.org_uuid = orgUuid.value;
+                    }
                 }
             }
 
@@ -986,10 +1166,12 @@
         }
 
         async function completeSetup() {
-            // Save any final data
-            const orgUuid = document.getElementById('org_uuid');
-            if (orgUuid && orgUuid.value) {
-                customerData.org_uuid = orgUuid.value;
+            // Save any final data (org_uuid only exists for API token users with first-party access)
+            if (customerData.license_type === 'api-token' && customerData.access_method === 'first-party') {
+                const orgUuid = document.getElementById('org_uuid');
+                if (orgUuid && orgUuid.value) {
+                    customerData.org_uuid = orgUuid.value;
+                }
             }
 
             // Add timestamp
@@ -1041,6 +1223,7 @@
                     'team_size': 'Team Size',
                     'timeline': 'Timeline',
                     'license_type': 'License Type',
+                    'access_method': 'Access Method',
                     'org_uuid': 'Organization ID'
                 };
 
@@ -1061,28 +1244,38 @@
             content.innerHTML = `
                 <div class="end-screen">
                     <div class="success-icon">✓</div>
-                    <div class="step-title">Setup Complete!</div>
-                    <p>Your Claude Code setup information has been recorded. ${customerData.license_type === 'per-user' ? 'Our sales team will contact you within 24 hours.' : 'You can now start using Claude Code with your API token.'}</p>
+                    <div class="step-title">${customerData.license_type === 'per-user' ? 'Thank You!' : 'Setup Complete!'}</div>
+                    <p>${customerData.license_type === 'per-user' ?
+                        'Your information has been submitted. Our sales team will contact you soon to complete your Claude Code Enterprise setup with per-user licensing.' :
+                        'Your Claude Code setup information has been recorded. You can now start using Claude Code with your API token.'}</p>
 
                     ${summaryHtml}
 
                     <div class="action-box" style="margin-top: 30px;">
-                        <h4>Next Steps:</h4>
+                        <h4>${customerData.license_type === 'per-user' ? 'What Happens Next:' : 'Next Steps:'}</h4>
                         <ol style="margin-left: 20px; line-height: 2;">
-                            <li>Complete SSO setup if not already done</li>
-                            <li>Install Claude Code for your developers</li>
-                            <li>Set up workspace spending limits</li>
-                            <li>Review the getting started guide</li>
+                            ${customerData.license_type === 'per-user' ?
+                                `<li>Our sales team will contact you soon</li>
+                                <li>They will help you set up SSO for your organization</li>
+                                <li>They will arrange per-user licensing ($200/month per developer)</li>
+                                <li>They will provide onboarding support for your team</li>` :
+                                `<li>Complete SSO setup if not already done</li>
+                                <li>Install Claude Code for your developers</li>
+                                ${customerData.access_method === 'first-party' ? '<li>Set up workspace spending limits</li>' : '<li>Configure billing alerts in your cloud platform</li>'}
+                                <li>Review the getting started guide</li>`
+                            }
                         </ol>
                     </div>
 
+                    ${customerData.license_type === 'per-user' ? '' : `
                     <div class="quick-links">
                         <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started" target="_blank" class="quick-link">
                             🚀 Getting Started Guide
                         </a>
+                        ${customerData.access_method === 'first-party' ? `
                         <a href="https://console.anthropic.com" target="_blank" class="quick-link">
                             🎛️ Console Dashboard
-                        </a>
+                        </a>` : ''}
                         <a href="https://support.anthropic.com/en" target="_blank" class="quick-link">
                             🎫 Support Center
                         </a>
@@ -1090,6 +1283,7 @@
                             📚 Documentation
                         </a>
                     </div>
+                    `}
 
                     <button class="nav-button next" style="margin-top: 30px; display: block; margin-left: auto; margin-right: auto;" onclick="location.reload()">
                         Start New Setup →
