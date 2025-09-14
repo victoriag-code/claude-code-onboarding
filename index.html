@@ -661,7 +661,7 @@
                         id: 'timeline',
                         label: 'When do you want to get started?',
                         type: 'select',
-                        options: ['Immediately', 'Within a week', 'Within a month', 'Just exploring'],
+                        options: ['Immediately', 'Within a month', 'Just exploring'],
                         required: true
                     },
                     {
@@ -1114,10 +1114,6 @@
                                     <h4>Setting Spending Limits</h4>
                                     <p>You can set monthly spending caps for each workspace to prevent unexpected charges:</p>
                                     <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
-
-                                    <div style="margin-top: 15px; padding: 10px; background: #F9F7F5; border-radius: 6px;">
-                                        <p><strong>Tip:</strong> Start with a conservative limit and adjust based on actual usage</p>
-                                    </div>
                                 </div>
 
                                 <div class="link-box">
@@ -1248,17 +1244,30 @@
                     'role': 'Role',
                     'team_size': 'Team Size',
                     'timeline': 'Timeline',
-                    'license_type': 'License Type',
+                    'license_type': 'Product Usage Model',
                     'access_method': 'Access Method',
                     'org_uuid': 'Organization ID'
                 };
 
                 for (const [key, value] of Object.entries(customerData)) {
                     if (value && fieldLabels[key]) {
+                        let displayValue = value;
+
+                        // Format specific values for display
+                        if (key === 'license_type') {
+                            displayValue = value === 'per-user' ? 'License' : 'API';
+                        } else if (key === 'access_method') {
+                            displayValue = {
+                                'first-party': 'First-Party API (Direct)',
+                                'bedrock': 'AWS Bedrock',
+                                'vertex': 'Google Cloud Vertex AI'
+                            }[value] || value;
+                        }
+
                         summaryHtml += `
                             <div class="summary-item">
                                 <span class="summary-label">${fieldLabels[key]}:</span>
-                                <span class="summary-value">${value}</span>
+                                <span class="summary-value">${displayValue}</span>
                             </div>
                         `;
                     }
