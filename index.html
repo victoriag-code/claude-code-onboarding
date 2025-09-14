@@ -740,11 +740,11 @@
         };
 
         const ssoStep = {
-            title: 'Single Sign-On (SSO) Configuration',
+            title: 'Single Sign-On (SSO) Information',
                 type: 'info',
                 content: `
                     <div class="info-box">
-                        <h3>Simplify Access with SSO</h3>
+                        <h3>About SSO for Claude Code</h3>
                         <p>Single Sign-On allows your team to access Claude Code using your existing company credentials (like Google Workspace, Okta, or Microsoft Azure AD).</p>
 
                         <h4 style="margin-top: 15px;">Benefits of SSO:</h4>
@@ -756,17 +756,15 @@
                         </ul>
                     </div>
 
-                    <div class="action-box">
-                        <h4>Configure SSO (Recommended)</h4>
-                        <p>Follow our step-by-step guide to set up SSO for your organization:</p>
-                        <a href="https://support.anthropic.com/en/articles/11941803-setting-up-console-single-sign-on-with-claude-code-role-auto-provisioning" target="_blank">SSO Setup Guide →</a>
-                        <p style="margin-top: 10px; font-size: 0.9em;">This typically takes 15-30 minutes to configure</p>
-                    </div>
-
-                    <div class="action-box">
-                        <h4>Need Help?</h4>
-                        <p>If you encounter any issues during SSO setup:</p>
-                        <a href="https://support.anthropic.com/en" target="_blank">Contact Support →</a>
+                    <div class="info-box" style="background: #FFF9F3; border-left-color: #FFB74D;">
+                        <h3>You'll set up SSO after completing this form</h3>
+                        <p>After we process your information, you'll receive detailed instructions for configuring SSO. This typically takes 15-30 minutes.</p>
+                        <p style="margin-top: 10px;">We'll provide:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Step-by-step SSO setup guide</li>
+                            <li>Support contact for any issues</li>
+                            <li>Role auto-provisioning instructions</li>
+                        </ul>
                     </div>
                 `
         };
@@ -781,11 +779,6 @@
                     </div>
 
                     <div id="billing-content"></div>
-
-                    <div class="link-box">
-                        <p>💰 Detailed Pricing Information</p>
-                        <a href="https://docs.anthropic.com/en/docs/claude-code/costs" target="_blank">View Pricing →</a>
-                    </div>
                 `
         };
 
@@ -887,57 +880,67 @@
 
             if (method === 'first-party') {
                 contentDiv.innerHTML = `
-                    <div class="action-box">
-                        <h4>Step 1: Create Your Console Account</h4>
-                        <p>Visit the link below to create your organization's account:</p>
-                        <a href="https://console.anthropic.com" target="_blank">Create Console Account →</a>
-                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">This will open in a new tab</p>
+                    <div class="info-box">
+                        <h3>First-Party API Setup</h3>
+                        <p>You'll access Claude Code directly through Anthropic's Console and API.</p>
+
+                        <h4 style="margin-top: 15px;">What you'll need to do after this wizard:</h4>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Create your Console account</li>
+                            <li>Generate API keys for your developers</li>
+                            <li>Configure SSO for your organization</li>
+                            <li>Set up workspace spending limits</li>
+                        </ul>
                     </div>
 
                     <div class="action-box">
-                        <h4>Step 2: Note Your Organization ID</h4>
-                        <p>After creating your account, you'll see an Organization UUID. Please enter it below:</p>
+                        <h4>Organization ID (Optional)</h4>
+                        <p>If you already have a Console account, enter your Organization UUID below. Otherwise, leave this blank and we'll help you create one after completing this form.</p>
                         <div class="form-group" style="margin-top: 15px;">
-                            <input type="text" class="form-input" id="org_uuid" placeholder="e.g., org_1234567890abcdef">
+                            <input type="text" class="form-input" id="org_uuid" placeholder="e.g., org_1234567890abcdef (optional)">
                         </div>
                     </div>
                 `;
             } else if (method === 'bedrock') {
                 contentDiv.innerHTML = `
-                    <div class="action-box">
-                        <h4>AWS Bedrock Setup</h4>
-                        <p>You can access Claude Code through your existing AWS Bedrock integration.</p>
-                        <p style="margin-top: 10px;">To get started:</p>
+                    <div class="info-box">
+                        <h3>AWS Bedrock Setup</h3>
+                        <p>You'll access Claude Code through your existing AWS Bedrock integration.</p>
+
+                        <h4 style="margin-top: 15px;">What you'll need to do after this wizard:</h4>
                         <ol style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
                             <li>Ensure Claude models are enabled in your AWS Bedrock console</li>
                             <li>Configure IAM permissions for your developers</li>
                             <li>Use the AWS SDK or Bedrock API to access Claude Code</li>
+                            <li>Set up AWS billing alerts and budgets</li>
                         </ol>
-                        <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html" target="_blank" style="margin-top: 15px; display: inline-block;">AWS Bedrock Documentation →</a>
                     </div>
 
-                    <div class="info-box">
-                        <h3>Note</h3>
+                    <div class="action-box">
+                        <h4>Important Note</h4>
                         <p>Billing and usage monitoring will be handled through your AWS account. You won't have access to Anthropic's Console dashboard.</p>
+                        <p style="margin-top: 10px;">After completing this form, you'll receive instructions for AWS Bedrock setup.</p>
                     </div>
                 `;
             } else if (method === 'vertex') {
                 contentDiv.innerHTML = `
-                    <div class="action-box">
-                        <h4>Google Cloud Vertex AI Setup</h4>
-                        <p>You can access Claude Code through Google Cloud's Vertex AI platform.</p>
-                        <p style="margin-top: 10px;">To get started:</p>
+                    <div class="info-box">
+                        <h3>Google Cloud Vertex AI Setup</h3>
+                        <p>You'll access Claude Code through Google Cloud's Vertex AI platform.</p>
+
+                        <h4 style="margin-top: 15px;">What you'll need to do after this wizard:</h4>
                         <ol style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
                             <li>Enable the Vertex AI API in your GCP project</li>
                             <li>Configure authentication and permissions</li>
                             <li>Use the Vertex AI SDK to access Claude Code</li>
+                            <li>Set up Google Cloud billing alerts</li>
                         </ol>
-                        <a href="https://cloud.google.com/vertex-ai/docs" target="_blank" style="margin-top: 15px; display: inline-block;">Vertex AI Documentation →</a>
                     </div>
 
-                    <div class="info-box">
-                        <h3>Note</h3>
+                    <div class="action-box">
+                        <h4>Important Note</h4>
                         <p>Billing and usage monitoring will be handled through your Google Cloud account. You won't have access to Anthropic's Console dashboard.</p>
+                        <p style="margin-top: 10px;">After completing this form, you'll receive instructions for Vertex AI setup.</p>
                     </div>
                 `;
             }
@@ -1111,40 +1114,42 @@
                         if (customerData.access_method === 'first-party') {
                             billingContent.innerHTML = `
                                 <div class="action-box">
-                                    <h4>Setting Spending Limits</h4>
-                                    <p>You can set monthly spending caps for each workspace to prevent unexpected charges:</p>
-                                    <a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a>
-                                </div>
-
-                                <div class="link-box">
-                                    <p>📊 Usage Monitoring</p>
-                                    <a href="https://console.anthropic.com/settings/usage" target="_blank">View Usage Dashboard →</a>
+                                    <h4>What you'll do after setup:</h4>
+                                    <ul style="margin-left: 20px; margin-top: 10px;">
+                                        <li>Set monthly spending caps for each workspace</li>
+                                        <li>Monitor usage through the Console dashboard</li>
+                                        <li>Configure billing alerts</li>
+                                        <li>Review monthly invoices</li>
+                                    </ul>
+                                    <p style="margin-top: 15px;">You'll receive detailed instructions for managing costs after completing this form.</p>
                                 </div>
                             `;
                         } else if (customerData.access_method === 'bedrock') {
                             billingContent.innerHTML = `
                                 <div class="action-box">
                                     <h4>AWS Billing Management</h4>
-                                    <p>Monitor and control your Claude Code usage through AWS:</p>
+                                    <p>Your Claude Code usage will be billed through AWS.</p>
+                                    <p style="margin-top: 10px;">What you'll do after setup:</p>
                                     <ul style="margin-left: 20px; margin-top: 10px;">
                                         <li>Set up AWS Budgets for cost control</li>
                                         <li>Use CloudWatch for usage monitoring</li>
                                         <li>Configure billing alerts in AWS Cost Explorer</li>
                                     </ul>
-                                    <a href="https://aws.amazon.com/aws-cost-management/" target="_blank" style="margin-top: 15px; display: inline-block;">AWS Cost Management →</a>
+                                    <p style="margin-top: 15px;">You'll receive AWS-specific billing instructions after completing this form.</p>
                                 </div>
                             `;
                         } else if (customerData.access_method === 'vertex') {
                             billingContent.innerHTML = `
                                 <div class="action-box">
                                     <h4>Google Cloud Billing Management</h4>
-                                    <p>Monitor and control your Claude Code usage through GCP:</p>
+                                    <p>Your Claude Code usage will be billed through Google Cloud.</p>
+                                    <p style="margin-top: 10px;">What you'll do after setup:</p>
                                     <ul style="margin-left: 20px; margin-top: 10px;">
                                         <li>Set up budget alerts in Google Cloud Console</li>
                                         <li>Use Cloud Monitoring for usage tracking</li>
                                         <li>Configure spending limits per project</li>
                                     </ul>
-                                    <a href="https://cloud.google.com/billing/docs" target="_blank" style="margin-top: 15px; display: inline-block;">GCP Billing Documentation →</a>
+                                    <p style="margin-top: 15px;">You'll receive GCP-specific billing instructions after completing this form.</p>
                                 </div>
                             `;
                         }
@@ -1303,19 +1308,38 @@
                     </div>
 
                     ${customerData.license_type === 'per-user' ? '' : `
+                    <div class="action-box" style="margin-top: 20px; background: #E8F5E9;">
+                        <h4>🚀 Ready to Get Started!</h4>
+                        <p>Your information has been submitted. Here are your setup resources:</p>
+                        ${customerData.access_method === 'first-party' ? `
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><a href="https://console.anthropic.com" target="_blank">Create Console Account →</a></li>
+                            <li><a href="https://support.anthropic.com/en/articles/11941803-setting-up-console-single-sign-on-with-claude-code-role-auto-provisioning" target="_blank">SSO Setup Guide →</a></li>
+                            <li><a href="https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces" target="_blank">Workspace Management Guide →</a></li>
+                            <li><a href="https://console.anthropic.com/settings/usage" target="_blank">Usage Dashboard →</a></li>
+                        </ul>
+                        ` : customerData.access_method === 'bedrock' ? `
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html" target="_blank">AWS Bedrock Setup Guide →</a></li>
+                            <li><a href="https://aws.amazon.com/aws-cost-management/" target="_blank">AWS Cost Management →</a></li>
+                        </ul>
+                        ` : `
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><a href="https://cloud.google.com/vertex-ai/docs" target="_blank">Vertex AI Setup Guide →</a></li>
+                            <li><a href="https://cloud.google.com/billing/docs" target="_blank">GCP Billing Documentation →</a></li>
+                        </ul>
+                        `}
+                    </div>
+
                     <div class="quick-links">
                         <a href="https://docs.anthropic.com/en/docs/claude-code/getting-started" target="_blank" class="quick-link">
-                            🚀 Getting Started Guide
+                            📚 Documentation
                         </a>
-                        ${customerData.access_method === 'first-party' ? `
-                        <a href="https://console.anthropic.com" target="_blank" class="quick-link">
-                            🎛️ Console Dashboard
-                        </a>` : ''}
+                        <a href="https://docs.anthropic.com/en/docs/claude-code/costs" target="_blank" class="quick-link">
+                            💰 Pricing Info
+                        </a>
                         <a href="https://support.anthropic.com/en" target="_blank" class="quick-link">
                             🎫 Support Center
-                        </a>
-                        <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank" class="quick-link">
-                            📚 Documentation
                         </a>
                     </div>
                     `}
