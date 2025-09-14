@@ -804,15 +804,38 @@
 
             // Add steps based on license type
             if (selectedLicense === 'api-token') {
-                // API Token users get the full setup flow
+                // API Token users need to set up access method first
                 steps.push(apiSetupStep);
-                steps.push(ssoStep);
-                steps.push(billingStep);
+                // We'll add SSO and billing steps after access method is selected
             }
             // Per-user license customers go straight to completion after form
             // Sales team will handle SSO, billing, etc.
 
             // Update progress bar as steps may have changed
+            if (currentStep >= 0) {
+                const progress = document.getElementById('progress');
+                const progressPercent = ((currentStep + 1) / steps.length) * 100;
+                progress.style.width = progressPercent + '%';
+            }
+        }
+
+        function buildStepsBasedOnAccessMethod() {
+            // Rebuild steps including the appropriate final steps based on access method
+            steps = [...baseSteps];
+
+            if (selectedLicense === 'api-token') {
+                steps.push(apiSetupStep);
+
+                // Only add SSO step for first-party API users
+                if (selectedAccessMethod === 'first-party') {
+                    steps.push(ssoStep);
+                }
+
+                // All API token users get billing step
+                steps.push(billingStep);
+            }
+
+            // Update progress bar
             if (currentStep >= 0) {
                 const progress = document.getElementById('progress');
                 const progressPercent = ((currentStep + 1) / steps.length) * 100;
@@ -921,6 +944,9 @@
 
             // Enable next button
             document.getElementById('next-btn').disabled = false;
+
+            // Rebuild steps based on access method selection
+            buildStepsBasedOnAccessMethod();
         }
 
         function validateForm() {
@@ -1259,7 +1285,7 @@
                                 <li>They will help you set up SSO for your organization</li>
                                 <li>They will arrange per-user licensing ($200/month per developer)</li>
                                 <li>They will provide onboarding support for your team</li>` :
-                                `<li>Complete SSO setup if not already done</li>
+                                `${customerData.access_method === 'first-party' ? '<li>Complete SSO setup if not already done</li>' : ''}
                                 <li>Install Claude Code for your developers</li>
                                 ${customerData.access_method === 'first-party' ? '<li>Set up workspace spending limits</li>' : '<li>Configure billing alerts in your cloud platform</li>'}
                                 <li>Review the getting started guide</li>`

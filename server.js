@@ -218,15 +218,15 @@ app.post('/api/submit-wizard', limiter, async (req, res) => {
                     <p><strong>What happens next:</strong></p>
                     <ul>
                         <li>Our sales team will contact you soon to arrange your per-user licensing</li>
-                        <li>In the meantime, you can start using Claude Code with API tokens</li>
-                        <li>Complete your SSO setup if you haven't already</li>
+                        <li>They will help you set up SSO and complete your organization setup</li>
+                        <li>They will provide onboarding support for your team</li>
                     </ul>
                     ` : `
                     <p><strong>You're ready to get started!</strong></p>
                     <ul>
                         <li>Use your API tokens to begin using Claude Code immediately</li>
-                        <li>Complete your SSO setup if you haven't already</li>
-                        <li>Set up workspace spending limits as needed</li>
+                        ${customerData.access_method === 'first-party' ? '<li>Complete your SSO setup if you haven\'t already</li>' : ''}
+                        <li>${customerData.access_method === 'first-party' ? 'Set up workspace spending limits as needed' : 'Configure billing alerts in your cloud platform'}</li>
                     </ul>
                     `}
 
@@ -251,12 +251,11 @@ We've received your setup information for ${customerData.company_name}.
 ${customerData.license_type === 'per-user' ?
 `What happens next:
 - Our sales team will contact you soon to arrange your per-user licensing
-- In the meantime, you can start using Claude Code with API tokens
-- Complete your SSO setup if you haven't already` :
+- They will help you set up SSO and complete your organization setup
+- They will provide onboarding support for your team` :
 `You're ready to get started!
-- Use your API tokens to begin using Claude Code immediately
-- Complete your SSO setup if you haven't already
-- Set up workspace spending limits as needed`}
+- Use your API tokens to begin using Claude Code immediately${customerData.access_method === 'first-party' ? '\n- Complete your SSO setup if you haven\'t already' : ''}
+- ${customerData.access_method === 'first-party' ? 'Set up workspace spending limits as needed' : 'Configure billing alerts in your cloud platform'}`}
 
 Helpful Resources:
 - Getting Started Guide: https://docs.anthropic.com/en/docs/claude-code/getting-started
