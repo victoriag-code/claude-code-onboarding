@@ -11,16 +11,4 @@
 - The language of the app should be updated to be appropriate for someone in enterprise who is looking to get Claude Code set up for his or her team. Assume that this audience is barely technical, and include copious amounts of helper tool tips for them that are appropriately placed, in order to understand any jargon or concepts (like API first party vs third party, etc)\
 - After this step, it should be explained to the user that there are 2 ways to use Claude Code - one by purchasing a license per user ($200/month, and which includes Claude For Enterprise as well) and the other by using an API token. If they indicate interest in the license, it must be explained to them that they MUST get started with an API token first, but that because they indicated interest, a salesperson will reach out to them shortly after they get started\
 - This whole system should be productionized, using vanilla HTML/JS/CSS for the frontend, and Node.js for the backend.\
-- After implementing this, produce a Markdown file explaining what technical steps need to be taken in order to make this live. I will then take this Markdown file and determine who I need to reach out to within Anthropic in order to make this wizard a reality.\
-\
-\
-\'97\'97\'97\
-\
-I would like to update the wizard so that, instead of capturing interest in a license and then forcing users to get started with the API first, they are instead shown both options. If they click on the \'93License\'94 option, they should be taken to this site:\
-\
-Also make the following changes\
-- Pricing documentation link should point to: \'93https://docs.anthropic.com/en/docs/claude-code/costs\'94\
-- Claude Code Usage dashboard is only relevant for users who are using Claude Code through first-party and should now be shown if they are using it through third-party (ie, API via Bedrock or Vertex, etc)\
-- At the last page, \'93License Type\'94 should be called \'93Product Usage Model\'94, with 2 different possibilities: \'93License\'94 or \'93API\'94\
-- Remove any language telling the user to start with a conservative amount\
-- Currently, there are some steps that pull the user away from completing the wizard (for example, sending an email to a sales rep for help with SSO). The problem with this is that if the user is pulled away before completing the wizard, the information will never get emailed to the catch-all email address. Streamline the flow so that the user is forced to complete the wizard before doing anything else (although checking documentation in a new tab is OK, if that is a step that they must finish).}
+- After implementing this, produce a Markdown file explaining what technical steps need to be taken in order to make this live. I will then take this Markdown file and determine who I need to reach out to within Anthropic in order to make this wizard a reality.}
