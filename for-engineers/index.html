@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started with Claude Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #F5F3F0 0%, #E6DDD4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .wizard-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .wizard-header {
+            background: #D4A574;
+            color: #1A1A1A;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .wizard-header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .wizard-header p {
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(26, 26, 26, 0.2);
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1A1A1A;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .wizard-content {
+            padding: 40px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .step-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1A1A1A;
+        }
+
+        .info-box {
+            background: #F9F7F5;
+            border-left: 4px solid #D4A574;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #1A1A1A;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .info-box p {
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        .code-box {
+            background: #1A1A1A;
+            color: #F5F3F0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #D4A574;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #C09868;
+            transform: translateY(-2px);
+        }
+
+        .copy-button.copied {
+            background: #27ae60;
+        }
+
+        .video-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .resource-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .resource-card {
+            background: #F5F3F0;
+            border: 2px solid #D4A574;
+            border-radius: 12px;
+            padding: 25px;
+            text-decoration: none;
+            color: #1A1A1A;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .resource-card:hover {
+            background: #D4A574;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(212, 165, 116, 0.3);
+        }
+
+        .resource-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resource-card p {
+            font-size: 0.95em;
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        .resource-icon {
+            font-size: 1.5em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E6DDD4;
+        }
+
+        .nav-button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-button.back {
+            background: #F5F3F0;
+            color: #1A1A1A;
+        }
+
+        .nav-button.back:hover {
+            background: #E6DDD4;
+        }
+
+        .nav-button.next {
+            background: #D4A574;
+            color: white;
+        }
+
+        .nav-button.next:hover {
+            background: #C09868;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .highlight-box {
+            background: #FFF9F3;
+            border: 2px solid #D4A574;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight-box h4 {
+            color: #1A1A1A;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .system-requirements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .req-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #D4A574;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        /* Modal styles for interactive popups */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 35px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideInModal 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideInModal {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-header h3 {
+            color: #1A1A1A;
+            font-size: 1.5em;
+            margin: 0;
+            flex: 1;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #F5F3F0;
+            color: #1A1A1A;
+        }
+
+        .modal-body {
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .modal-body ul {
+            margin: 15px 0 15px 20px;
+        }
+
+        .modal-body li {
+            margin-bottom: 10px;
+        }
+
+        .modal-body strong {
+            color: #D4A574;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .use-case-button {
+            background: #F5F3F0;
+            border: 2px solid #D4A574;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .use-case-button:hover {
+            background: #D4A574;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+        }
+
+        .use-case-button h4 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .use-case-button p {
+            font-size: 0.9em;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        .use-case-icon {
+            font-size: 1.4em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal Overlay for Use Case Details -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>Getting Started with Claude Code</h1>
+            <p id="header-description">Your guide to installing and learning Claude Code</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 33%"></div>
+            </div>
+        </div>
+
+        <div class="wizard-content">
+            <div id="step-content" class="step-content">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-button back" id="back-btn" onclick="previousStep()" style="display: none">
+                    ← Back
+                </button>
+                <button class="nav-button next" id="next-btn" onclick="nextStep()">
+                    Next →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+
+        const steps = [
+            {
+                title: 'Install Claude Code',
+                content: `
+                    <div class="info-box">
+                        <h3>What is Claude Code?</h3>
+                        <p>Claude Code is an agentic command line tool that gives developers access to AI directly in their terminal, allowing them to delegate complex tasks while maintaining transparency and control. Claude Code is now generally available.</p>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>System Requirements</h4>
+                        <div class="system-requirements">
+                            <div class="req-item">macOS</div>
+                            <div class="req-item">Linux</div>
+                            <div class="req-item">Windows (WSL)</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h3><span class="step-number">1</span>Installation</h3>
+                        <p>Run this command in your terminal to install Claude Code:</p>
+                    </div>
+
+                    <div class="code-box">
+                        <button class="copy-button" onclick="copyInstallCommand()">Copy</button>
+                        <code>npm install -g @anthropic-ai/claude-code</code>
+                    </div>
+
+                    <div class="info-box">
+                        <h3><span class="step-number">2</span>Configuration</h3>
+                        <p>After installation, Claude Code can be configured to use models via:</p>
+                        <ul>
+                            <li><strong>Anthropic API:</strong> You will need an active Anthropic Console organization. Set up your Console organization and ensure you have a Developer role.</li>
+                            <li><strong>Amazon Bedrock:</strong> Configure environment variables for AWS access.</li>
+                            <li><strong>GCP Vertex AI:</strong> Configure environment variables for Google Cloud access.</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h3><span class="step-number">3</span>First Startup</h3>
+                        <p>On first startup, you'll be asked to sign in to your Anthropic Console organization (if using Anthropic API).</p>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>Need More Details?</h4>
+                        <p>See the <a href="https://docs.claude.com/en/docs/claude-code/getting-started" target="_blank" style="color: #D4A574; text-decoration: none; font-weight: 500;">full installation instructions in our docs</a>.</p>
+                    </div>
+                `
+            },
+            {
+                title: 'How Anthropic Teams Use Claude Code',
+                content: `
+                    <div class="info-box">
+                        <h3>Real-World Use Cases from Our Engineers</h3>
+                        <p>Anthropic's teams use Claude Code across engineering, product, and operations. Click each use case below to learn more about how Claude Code can help you work more efficiently.</p>
+                    </div>
+
+                    <div class="use-case-grid">
+                        <button class="use-case-button" onclick="showUseCase('navigation')">
+                            <h4><span class="use-case-icon">🗺️</span>Codebase Navigation</h4>
+                            <p>Quickly understand and navigate large codebases</p>
+                        </button>
+
+                        <button class="use-case-button" onclick="showUseCase('testing')">
+                            <h4><span class="use-case-icon">✅</span>Testing & Review</h4>
+                            <p>Automate test generation and code reviews</p>
+                        </button>
+
+                        <button class="use-case-button" onclick="showUseCase('debugging')">
+                            <h4><span class="use-case-icon">🔍</span>Debugging</h4>
+                            <p>Diagnose and resolve issues faster</p>
+                        </button>
+
+                        <button class="use-case-button" onclick="showUseCase('prototyping')">
+                            <h4><span class="use-case-icon">⚡</span>Rapid Prototyping</h4>
+                            <p>Build features and prototypes quickly</p>
+                        </button>
+
+                        <button class="use-case-button" onclick="showUseCase('documentation')">
+                            <h4><span class="use-case-icon">📝</span>Documentation</h4>
+                            <p>Generate and maintain technical docs</p>
+                        </button>
+
+                        <button class="use-case-button" onclick="showUseCase('automation')">
+                            <h4><span class="use-case-icon">🤖</span>Workflow Automation</h4>
+                            <p>Automate repetitive development tasks</p>
+                        </button>
+                    </div>
+
+                    <div class="highlight-box" style="margin-top: 30px;">
+                        <h4>💡 Key Insight</h4>
+                        <p style="font-style: italic;">"Agentic coding isn't just accelerating traditional development. It's dissolving the boundary between technical and non-technical work."</p>
+                        <p style="margin-top: 10px;"><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank" style="color: #D4A574; text-decoration: none; font-weight: 500;">Read the full article →</a></p>
+                    </div>
+                `
+            },
+            {
+                title: 'Additional Resources',
+                content: `
+                    <div class="info-box">
+                        <h3>Continue Your Learning Journey</h3>
+                        <p>Here are curated resources to help you master Claude Code and become more productive:</p>
+                    </div>
+
+                    <div class="resource-grid">
+                        <a href="https://www.youtube.com/watch?v=6eBSHbLKuN0" target="_blank" class="resource-card">
+                            <h3><span class="resource-icon">🎥</span> Mastering Claude Code in 30 Minutes</h3>
+                            <p>A comprehensive video tutorial covering everything from basic commands to advanced workflows. Perfect for getting up to speed quickly.</p>
+                        </a>
+
+                        <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" class="resource-card">
+                            <h3><span class="resource-icon">📚</span> Best Practices Guide</h3>
+                            <p>Learn the recommended patterns, workflows, and techniques for using Claude Code effectively in your development work.</p>
+                        </a>
+
+                        <a href="https://anthropic.skilljar.com/claude-code-in-action" target="_blank" class="resource-card">
+                            <h3><span class="resource-icon">🎓</span> Official Claude Code Course</h3>
+                            <p>A structured course covering Claude Code from fundamentals to advanced topics, with hands-on exercises and examples.</p>
+                        </a>
+                    </div>
+
+                    <div class="highlight-box" style="margin-top: 30px;">
+                        <h4>Ready to Start Coding?</h4>
+                        <p>You're all set! Open your terminal and type <code style="background: #F5F3F0; padding: 2px 8px; border-radius: 4px;">claude</code> to get started.</p>
+                        <p style="margin-top: 10px;">For help at any time, visit our <a href="https://docs.claude.com/en/docs/claude-code" target="_blank" style="color: #D4A574; text-decoration: none; font-weight: 500;">documentation</a> or <a href="https://support.anthropic.com/en" target="_blank" style="color: #D4A574; text-decoration: none; font-weight: 500;">support center</a>.</p>
+                    </div>
+                `
+            }
+        ];
+
+        function copyInstallCommand() {
+            const command = 'npm install -g @anthropic-ai/claude-code';
+            navigator.clipboard.writeText(command).then(() => {
+                const button = document.querySelector('.copy-button');
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Use case content for modals
+        const useCaseContent = {
+            navigation: {
+                title: '🗺️ Codebase Navigation & Understanding',
+                body: `
+                    <p>Claude Code helps engineers quickly understand and navigate unfamiliar codebases, making onboarding and cross-team work much faster.</p>
+
+                    <p style="margin-top: 15px;"><strong>Real Examples from Anthropic:</strong></p>
+                    <ul>
+                        <li><strong>New Data Scientists:</strong> Use Claude Code to quickly understand complex codebases when joining the team</li>
+                        <li><strong>Product Engineering:</strong> Identify relevant files for tasks across large repositories</li>
+                        <li><strong>Smart Context:</strong> Claude reads CLAUDE.md files to understand project structure and dependencies</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>How it helps:</strong></p>
+                    <ul>
+                        <li>Explains data pipeline dependencies and relationships</li>
+                        <li>Maps out code architecture and file organization</li>
+                        <li>Reduces time spent searching for relevant code</li>
+                    </ul>
+                `
+            },
+            testing: {
+                title: '✅ Testing & Code Review',
+                body: `
+                    <p>Automate the creation of comprehensive unit tests and streamline code review processes across your team.</p>
+
+                    <p style="margin-top: 15px;"><strong>Real Examples from Anthropic:</strong></p>
+                    <ul>
+                        <li><strong>Product Design Team:</strong> Generates comprehensive test suites for new features</li>
+                        <li><strong>Security Engineering:</strong> Uses test-driven development with Claude Code writing initial tests</li>
+                        <li><strong>Cross-Language Testing:</strong> Translates tests between programming languages</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Benefits:</strong></p>
+                    <ul>
+                        <li>Ensures better test coverage</li>
+                        <li>Maintains consistent testing patterns</li>
+                        <li>Saves time on repetitive test writing</li>
+                        <li>Helps catch edge cases you might miss</li>
+                    </ul>
+                `
+            },
+            debugging: {
+                title: '🔍 Debugging & Troubleshooting',
+                body: `
+                    <p>Accelerate problem diagnosis by having Claude Code analyze stack traces, logs, and error messages to identify root causes.</p>
+
+                    <p style="margin-top: 15px;"><strong>Real Examples from Anthropic:</strong></p>
+                    <ul>
+                        <li><strong>Security Engineering:</strong> Resolves issues 3x faster using Claude Code for debugging</li>
+                        <li><strong>Data Infrastructure:</strong> Diagnosed complex Kubernetes pod scheduling issues</li>
+                        <li><strong>Stack Trace Analysis:</strong> Quickly identifies problematic code paths and potential fixes</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Impact:</strong></p>
+                    <ul>
+                        <li>Faster mean time to resolution</li>
+                        <li>Better understanding of system behavior</li>
+                        <li>Reduces debugging frustration</li>
+                        <li>Learns from your codebase context</li>
+                    </ul>
+                `
+            },
+            prototyping: {
+                title: '⚡ Rapid Prototyping & Feature Development',
+                body: `
+                    <p>Build features and prototypes quickly, even in languages or frameworks you're less familiar with.</p>
+
+                    <p style="margin-top: 15px;"><strong>Real Examples from Anthropic:</strong></p>
+                    <ul>
+                        <li><strong>Product Design Team:</strong> Builds features with minimal human code review needed</li>
+                        <li><strong>Data Scientists:</strong> Create React visualizations without deep TypeScript expertise</li>
+                        <li><strong>Cross-Functional Work:</strong> Enables rapid development without extensive technical knowledge</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Key Advantages:</strong></p>
+                    <ul>
+                        <li>Faster time from idea to working prototype</li>
+                        <li>Reduces dependency on specific language experts</li>
+                        <li>Enables experimentation and iteration</li>
+                        <li>Maintains code quality standards</li>
+                    </ul>
+                `
+            },
+            documentation: {
+                title: '📝 Documentation & Knowledge Management',
+                body: `
+                    <p>Generate and maintain technical documentation, consolidate information, and create helpful runbooks for your team.</p>
+
+                    <p style="margin-top: 15px;"><strong>Real Examples from Anthropic:</strong></p>
+                    <ul>
+                        <li><strong>Technical Docs:</strong> Consolidates complex technical documentation automatically</li>
+                        <li><strong>Function Explanations:</strong> Helps team members understand complex functions and patterns</li>
+                        <li><strong>Runbooks:</strong> Creates markdown runbooks and troubleshooting guides</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Documentation Tasks:</strong></p>
+                    <ul>
+                        <li>API documentation generation</li>
+                        <li>Code comment improvements</li>
+                        <li>README file creation and updates</li>
+                        <li>Architecture decision records (ADRs)</li>
+                        <li>Onboarding documentation</li>
+                    </ul>
+                `
+            },
+            automation: {
+                title: '🤖 Workflow Automation',
+                body: `
+                    <p>Automate repetitive development tasks and enable non-technical teams to build custom tools and workflows.</p>
+
+                    <p style="margin-top: 15px;"><strong>Real Examples from Anthropic:</strong></p>
+                    <ul>
+                        <li><strong>Growth Marketing:</strong> Generates ad variations automatically</li>
+                        <li><strong>Legal Team:</strong> Created prototype "phone tree" systems for workflow automation</li>
+                        <li><strong>Custom Tools:</strong> Non-technical teams build tools without extensive coding</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Automation Opportunities:</strong></p>
+                    <ul>
+                        <li>Build internal scripts and tools</li>
+                        <li>Create data processing pipelines</li>
+                        <li>Automate report generation</li>
+                        <li>Set up CI/CD workflows</li>
+                        <li>Generate boilerplate code</li>
+                    </ul>
+
+                    <p style="margin-top: 15px; padding: 15px; background: #FFF9F3; border-radius: 8px; border-left: 4px solid #D4A574;">
+                        <strong>Key Insight:</strong> This is where "agentic coding dissolves the boundary between technical and non-technical work"—teams without coding expertise can build custom solutions.
+                    </p>
+                `
+            }
+        };
+
+        function showUseCase(useCaseId) {
+            const useCase = useCaseContent[useCaseId];
+            if (useCase) {
+                document.getElementById('modal-title').innerHTML = useCase.title;
+                document.getElementById('modal-body').innerHTML = useCase.body;
+                document.getElementById('modal-overlay').classList.add('active');
+            }
+        }
+
+        function closeModal(event) {
+            // Close if clicking overlay or close button, but not the modal content itself
+            if (!event || event.target.id === 'modal-overlay' || event.currentTarget.classList.contains('modal-close')) {
+                document.getElementById('modal-overlay').classList.remove('active');
+            }
+        }
+
+        function showStep(stepIndex) {
+            const content = document.getElementById('step-content');
+            const backBtn = document.getElementById('back-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progress = document.getElementById('progress');
+
+            if (stepIndex >= 0 && stepIndex < steps.length) {
+                const step = steps[stepIndex];
+                currentStep = stepIndex;
+
+                // Update progress bar
+                const progressPercent = ((stepIndex + 1) / steps.length) * 100;
+                progress.style.width = progressPercent + '%';
+
+                // Show/hide back button
+                backBtn.style.display = stepIndex > 0 ? 'block' : 'none';
+
+                // Update next button
+                if (stepIndex === steps.length - 1) {
+                    nextBtn.textContent = 'Finish';
+                } else {
+                    nextBtn.textContent = 'Next →';
+                }
+
+                // Update content
+                content.innerHTML = `<div class="step-title">${step.title}</div>${step.content}`;
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                showStep(currentStep + 1);
+            } else {
+                // On finish, could redirect or show completion message
+                alert('You\'re all set! Happy coding with Claude Code!');
+                location.reload();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        // Initialize wizard on load
+        window.addEventListener('DOMContentLoaded', () => {
+            showStep(0);
+        });
+    </script>
+</body>
+</html>
