@@ -75,6 +75,29 @@
             border-radius: 2px;
         }
 
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .step-indicator {
+            font-weight: 500;
+        }
+
+        .time-estimate {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .time-estimate::before {
+            content: '⏱️';
+        }
+
         .wizard-content {
             padding: 40px;
             min-height: 400px;
@@ -475,6 +498,10 @@
             <div class="progress-bar">
                 <div class="progress-fill" id="progress" style="width: 33%"></div>
             </div>
+            <div class="progress-info">
+                <div class="step-indicator" id="step-indicator">Step 1 of 3</div>
+                <div class="time-estimate" id="time-estimate">~5 min</div>
+            </div>
         </div>
 
         <div class="wizard-content">
@@ -499,6 +526,7 @@
         const steps = [
             {
                 title: 'Install Claude Code',
+                timeEstimate: '~5 min',
                 content: `
                     <div class="info-box">
                         <h3>What is Claude Code?</h3>
@@ -547,6 +575,7 @@
             },
             {
                 title: 'How Anthropic Teams Use Claude Code',
+                timeEstimate: '~10 min',
                 content: `
                     <div class="info-box">
                         <h3>Real-World Use Cases from Our Engineers</h3>
@@ -594,6 +623,7 @@
             },
             {
                 title: 'Additional Resources',
+                timeEstimate: '~5 min',
                 content: `
                     <div class="info-box">
                         <h3>Continue Your Learning Journey</h3>
@@ -795,6 +825,8 @@
             const backBtn = document.getElementById('back-btn');
             const nextBtn = document.getElementById('next-btn');
             const progress = document.getElementById('progress');
+            const stepIndicator = document.getElementById('step-indicator');
+            const timeEstimate = document.getElementById('time-estimate');
 
             if (stepIndex >= 0 && stepIndex < steps.length) {
                 const step = steps[stepIndex];
@@ -803,6 +835,14 @@
                 // Update progress bar
                 const progressPercent = ((stepIndex + 1) / steps.length) * 100;
                 progress.style.width = progressPercent + '%';
+
+                // Update step indicator and time estimate
+                stepIndicator.textContent = `Step ${stepIndex + 1} of ${steps.length}`;
+                if (step.timeEstimate) {
+                    timeEstimate.textContent = step.timeEstimate;
+                } else {
+                    timeEstimate.textContent = '~5 min';
+                }
 
                 // Show/hide back button
                 backBtn.style.display = stepIndex > 0 ? 'block' : 'none';

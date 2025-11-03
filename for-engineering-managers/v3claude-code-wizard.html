@@ -67,12 +67,35 @@
             position: relative;
             margin-top: 20px;
         }
-        
+
         .progress-fill {
             height: 100%;
             background: #1A1A1A;
             transition: width 0.3s ease;
             border-radius: 2px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .step-indicator {
+            font-weight: 500;
+        }
+
+        .time-estimate {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .time-estimate::before {
+            content: '⏱️';
         }
         
         .wizard-content {
@@ -392,6 +415,10 @@
             <div class="progress-bar">
                 <div class="progress-fill" id="progress"></div>
             </div>
+            <div class="progress-info">
+                <div class="step-indicator" id="step-indicator">Select customer type</div>
+                <div class="time-estimate" id="time-estimate">~2 min</div>
+            </div>
         </div>
         
         <div class="wizard-content">
@@ -418,6 +445,7 @@
                     {
                         title: 'Initial Questions',
                         type: 'form',
+                        timeEstimate: '~3 min',
                         fields: [
                             {
                                 id: 'tested',
@@ -452,6 +480,7 @@
                     {
                         title: 'Clarification on Enterprise Tier',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Important Information:</h3>
@@ -471,6 +500,7 @@
                     {
                         title: 'Access Methods',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Claude Code Access Options:</h3>
@@ -493,6 +523,7 @@
                     {
                         title: 'Data Training Policy',
                         type: 'info',
+                        timeEstimate: '~1 min',
                         content: `
                             <div class="info-box">
                                 <h3>Data Protection Assurance:</h3>
@@ -507,6 +538,7 @@
                     {
                         title: 'SSO Configuration',
                         type: 'info',
+                        timeEstimate: '~3 min',
                         content: `
                             <div class="info-box">
                                 <h3>Single Sign-On Setup</h3>
@@ -527,6 +559,7 @@
                     {
                         title: 'Billing and Pricing',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Pricing Details:</h3>
@@ -556,6 +589,7 @@
                     {
                         title: 'C4E Customer Information',
                         type: 'form',
+                        timeEstimate: '~3 min',
                         fields: [
                             {
                                 id: 'org_uuid',
@@ -604,6 +638,7 @@
                     {
                         title: 'Setup Recommendation',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Recommendation:</h3>
@@ -623,6 +658,7 @@
                     {
                         title: 'SSO Configuration',
                         type: 'info',
+                        timeEstimate: '~3 min',
                         content: `
                             <div class="info-box">
                                 <h3>Single Sign-On Setup</h3>
@@ -643,6 +679,7 @@
                     {
                         title: 'Billing and Pricing',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Pricing Details:</h3>
@@ -672,6 +709,7 @@
                     {
                         title: 'API 1P Customer Information',
                         type: 'form',
+                        timeEstimate: '~3 min',
                         fields: [
                             {
                                 id: 'tested',
@@ -706,6 +744,7 @@
                     {
                         title: 'Existing Terms Confirmation',
                         type: 'info',
+                        timeEstimate: '~1 min',
                         content: `
                             <div class="info-box">
                                 <h3>Data Protection:</h3>
@@ -720,6 +759,7 @@
                     {
                         title: 'Pricing Information',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Pricing Details:</h3>
@@ -748,6 +788,7 @@
                     {
                         title: 'API 3P Customer Information',
                         type: 'form',
+                        timeEstimate: '~3 min',
                         fields: [
                             {
                                 id: 'tested',
@@ -782,6 +823,7 @@
                     {
                         title: 'Claude Code via 3P',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Important Information:</h3>
@@ -814,6 +856,7 @@
                     {
                         title: 'Switching to 1P Account',
                         type: 'info',
+                        timeEstimate: '~2 min',
                         content: `
                             <div class="info-box">
                                 <h3>Creating Console 1P Account</h3>
@@ -879,7 +922,9 @@
             const backBtn = document.getElementById('back-btn');
             const nextBtn = document.getElementById('next-btn');
             const progress = document.getElementById('progress');
-            
+            const stepIndicator = document.getElementById('step-indicator');
+            const timeEstimate = document.getElementById('time-estimate');
+
             if (step === 0) {
                 // Initial customer type selection
                 content.innerHTML = `
@@ -907,6 +952,8 @@
                 backBtn.style.display = 'none';
                 nextBtn.style.display = 'none';
                 progress.style.width = '10%';
+                stepIndicator.textContent = 'Select customer type';
+                timeEstimate.textContent = '~2 min';
             } else if (selectedFlow === 'api-3p') {
                 // Special case for 3P API - ask if they want to create 1P account
                 content.innerHTML = `
@@ -926,6 +973,8 @@
                 backBtn.style.display = 'block';
                 nextBtn.style.display = 'none';
                 progress.style.width = '30%';
+                stepIndicator.textContent = 'Choose 1P or 3P';
+                timeEstimate.textContent = '~1 min';
             } else if (selectedFlow && flows[selectedFlow]) {
                 // Show flow steps
                 const flow = flows[selectedFlow];
@@ -1003,9 +1052,17 @@
                     } else {
                         nextBtn.textContent = 'Next →';
                     }
-                    
+
                     const progressPercent = ((stepIndex + 1) / flow.steps.length) * 70 + 30;
                     progress.style.width = progressPercent + '%';
+
+                    // Update step indicator and time estimate
+                    stepIndicator.textContent = `Step ${stepIndex + 1} of ${flow.steps.length}`;
+                    if (currentStepData.timeEstimate) {
+                        timeEstimate.textContent = currentStepData.timeEstimate;
+                    } else {
+                        timeEstimate.textContent = '~2 min';
+                    }
                 } else {
                     // End screen
                     showEndScreen();
@@ -1083,6 +1140,8 @@
             const backBtn = document.getElementById('back-btn');
             const nextBtn = document.getElementById('next-btn');
             const progress = document.getElementById('progress');
+            const stepIndicator = document.getElementById('step-indicator');
+            const timeEstimate = document.getElementById('time-estimate');
             
             // Create summary of collected data
             let summaryHtml = '';
@@ -1153,6 +1212,8 @@
             backBtn.style.display = 'none';
             nextBtn.style.display = 'none';
             progress.style.width = '100%';
+            stepIndicator.textContent = 'Complete';
+            timeEstimate.textContent = '';
         }
         
         function resetWizard() {
